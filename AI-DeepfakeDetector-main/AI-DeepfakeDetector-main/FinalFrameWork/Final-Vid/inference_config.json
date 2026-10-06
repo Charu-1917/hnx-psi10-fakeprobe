@@ -1,0 +1,41 @@
+{
+    "pipeline": "Intermediate Fusion (CoAtNet + Whisper + XGBoost)",
+    "coatnet_model": "coatnet_0_rw_224",
+    "coatnet_input_channels": 5,
+    "coatnet_input_size": 224,
+    "coatnet_weights": "best_coatnet_5ch.pth",
+    "whisper_model": "openai/whisper-base",
+    "num_frames": 5,
+    "frame_sampling": "uniform",
+    "video_pooling": "statistical (mean + max + std)",
+    "audio_pooling": "mean over time",
+    "video_feat_dim": 2304,
+    "audio_feat_dim": 512,
+    "fused_feat_dim": 2816,
+    "classifier": "XGBoost",
+    "xgboost_model_file": "xgboost_fusion_model.joblib",
+    "label_mapping": {
+        "0": "Bonafide (Real)",
+        "1": "Spoof (Fake)"
+    },
+    "normalization": {
+        "rgb_mean": [
+            0.485,
+            0.456,
+            0.406
+        ],
+        "rgb_std": [
+            0.229,
+            0.224,
+            0.225
+        ],
+        "forensic_mean": [
+            0.5,
+            0.5
+        ],
+        "forensic_std": [
+            0.5,
+            0.5
+        ]
+    }
+}

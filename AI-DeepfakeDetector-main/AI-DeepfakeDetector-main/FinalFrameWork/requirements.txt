@@ -1,0 +1,15 @@
+streamlit
+torch
+torchvision
+torchaudio
+timm
+transformers
+xgboost
+librosa
+opencv-python-headless
+numpy
+pandas
+Pillow
+joblib
+# System dependency: ffmpeg must be installed and available on PATH
+# (required for extracting audio tracks from uploaded videos)

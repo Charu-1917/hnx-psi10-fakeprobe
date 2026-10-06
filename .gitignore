@@ -17,12 +17,7 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Model weights & large artifacts
-*.pt
-*.pth
-*.ckpt
-*.onnx
-checkpoints/
+# Temporary / runs
 runs/
 wandb/
 
