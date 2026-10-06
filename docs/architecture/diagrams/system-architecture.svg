@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" role="img" aria-label="Three forensic branches — visual, audio, and cross-modal audio-visual consistency — feed a dynamically-weighted cross-attention fusion layer. Its calibrated output produces a four-way authenticity label, a confidence score, localization, and an abstention flag, which are assembled into structured evidence and turned into a plain-language explanation.">
+  <defs>
+    <style>
+      :root{
+        --bg:#F5F6F8; --surface:#FFFFFF; --fg:#1B1F24; --muted:#6B7280; --border:#D7DBE0;
+        --accent:#0E7490; --c-visual:#2563EB; --c-audio:#15803D; --c-cross:#7C3AED;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#14181D; --surface:#1D2228; --fg:#E7EAEE; --muted:#8B93A1; --border:#333A42;
+          --accent:#22A6C4; --c-visual:#5B8DEF; --c-audio:#3FBF6B; --c-cross:#A78BFA;
+        }
+      }
+      text{ font-family:'IBM Plex Mono','Segoe UI',monospace; fill:var(--fg); }
+    </style>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1400" height="800" style="fill:var(--bg)"/>
+
+  <g style="color:var(--fg)" font-size="12">
+
+    <g font-size="10.5" fill="var(--muted)" letter-spacing="1">
+      <text x="110" y="34" text-anchor="middle">INPUT</text>
+      <text x="410" y="34" text-anchor="middle">FORENSIC BRANCHES</text>
+      <text x="1060" y="146" text-anchor="middle">FUSION &amp; SCORING</text>
+    </g>
+
+    <rect x="40" y="90" width="140" height="44" rx="7" style="fill:var(--surface);stroke:var(--fg)" stroke-width="1.4"/>
+    <text x="110" y="117" text-anchor="middle" font-weight="600">Image / Video</text>
+
+    <rect x="40" y="268" width="140" height="44" rx="7" style="fill:var(--surface);stroke:var(--fg)" stroke-width="1.4"/>
+    <text x="110" y="295" text-anchor="middle" font-weight="600">Audio</text>
+
+    <path d="M180,112 H220" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M180,290 H220" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+
+    <path d="M150,134 L262,440" fill="none" stroke="var(--c-cross)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#a1)"/>
+    <path d="M150,312 L340,440" fill="none" stroke="var(--c-cross)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#a1)"/>
+    <rect x="178" y="372" width="96" height="18" rx="3" style="fill:var(--bg)"/>
+    <text x="226" y="385" text-anchor="middle" font-size="9.5" fill="var(--c-cross)">when both present</text>
+
+    <rect x="220" y="60" width="380" height="104" rx="9" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+    <rect x="220" y="60" width="5" height="104" style="fill:var(--c-visual)"/>
+    <text x="246" y="84" font-weight="700" fill="var(--c-visual)" font-size="12.5">VISUAL BRANCH</text>
+    <text x="246" y="105" font-size="11.5">align → spatial/texture</text>
+    <text x="246" y="123" font-size="11.5">+ frequency + pose</text>
+    <text x="246" y="141" font-size="11.5">+ temporal (video)</text>
+
+    <rect x="220" y="238" width="380" height="104" rx="9" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+    <rect x="220" y="238" width="5" height="104" style="fill:var(--c-audio)"/>
+    <text x="246" y="262" font-weight="700" fill="var(--c-audio)" font-size="12.5">AUDIO BRANCH</text>
+    <text x="246" y="283" font-size="11.5">raw-waveform / SSL</text>
+    <text x="246" y="301" font-size="11.5">(primary signal)</text>
+    <text x="246" y="319" font-size="11.5">+ spectral-artifact (secondary)</text>
+
+    <rect x="220" y="440" width="380" height="90" rx="9" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+    <rect x="220" y="440" width="5" height="90" style="fill:var(--c-cross)"/>
+    <text x="246" y="464" font-weight="700" fill="var(--c-cross)" font-size="12.5">CROSS-MODAL BRANCH</text>
+    <text x="246" y="485" font-size="11.5">SyncNet LSE-C / LSE-D</text>
+    <text x="246" y="503" font-size="11.5">+ phoneme-viseme check</text>
+
+    <path d="M600,112 H640" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M600,290 H640" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M600,485 H640" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+
+    <rect x="640" y="92" width="100" height="40" rx="7" style="fill:var(--bg);stroke:var(--c-visual)" stroke-width="1.3"/>
+    <text x="690" y="117" text-anchor="middle" font-size="11">embedding</text>
+    <rect x="640" y="270" width="100" height="40" rx="7" style="fill:var(--bg);stroke:var(--c-audio)" stroke-width="1.3"/>
+    <text x="690" y="295" text-anchor="middle" font-size="11">embedding</text>
+    <rect x="640" y="465" width="100" height="40" rx="7" style="fill:var(--bg);stroke:var(--c-cross)" stroke-width="1.3"/>
+    <text x="690" y="490" text-anchor="middle" font-size="11">embedding</text>
+
+    <path d="M740,112 H772 V220 H800" fill="none" stroke="var(--c-visual)" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M740,290 L800,280" fill="none" stroke="var(--c-audio)" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M740,485 H772 V340 H800" fill="none" stroke="var(--c-cross)" stroke-width="1.4" marker-end="url(#a1)"/>
+
+    <rect x="800" y="170" width="220" height="220" rx="10" style="fill:var(--surface);stroke:var(--accent)" stroke-width="1.8"/>
+    <text x="910" y="262" text-anchor="middle" font-weight="700" fill="var(--accent)" font-size="13">CROSS-ATTENTION</text>
+    <text x="910" y="280" text-anchor="middle" font-weight="700" fill="var(--accent)" font-size="13">FUSION</text>
+    <text x="910" y="305" text-anchor="middle" font-size="11">dynamically-weighted gate</text>
+    <text x="910" y="322" text-anchor="middle" font-size="11">+ per-modality confidence</text>
+
+    <path d="M1020,280 H1080" fill="none" stroke="currentColor" stroke-width="1.6" marker-end="url(#a1)"/>
+
+    <rect x="1080" y="170" width="240" height="220" rx="10" style="fill:var(--surface);stroke:var(--accent)" stroke-width="1.8"/>
+    <text x="1200" y="262" text-anchor="middle" font-weight="700" fill="var(--accent)" font-size="13">CALIBRATED SCORE</text>
+    <text x="1200" y="285" text-anchor="middle" font-size="11">temperature scaling</text>
+    <text x="1200" y="302" text-anchor="middle" font-size="11">+ abstention band</text>
+    <text x="1200" y="319" text-anchor="middle" font-size="9.5" fill="var(--muted)">(near-boundary / OOD → "uncertain")</text>
+
+    <path d="M1200,390 V405" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M870,405 H1350" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M870,405 V430" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M1030,405 V430" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M1190,405 V430" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+    <path d="M1350,405 V430" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#a1)"/>
+
+    <g font-size="11.5">
+      <rect x="800" y="430" width="140" height="70" rx="8" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+      <text x="870" y="456" text-anchor="middle" font-weight="700">LABEL</text>
+      <text x="870" y="474" text-anchor="middle" font-size="9.5" fill="var(--muted)">RVRA · RVFA ·</text>
+      <text x="870" y="487" text-anchor="middle" font-size="9.5" fill="var(--muted)">FVRA · FVFA</text>
+
+      <rect x="960" y="430" width="140" height="70" rx="8" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+      <text x="1030" y="456" text-anchor="middle" font-weight="700">CONFIDENCE</text>
+      <text x="1030" y="476" text-anchor="middle" font-size="9.5" fill="var(--muted)">calibrated %</text>
+
+      <rect x="1120" y="430" width="140" height="70" rx="8" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+      <text x="1190" y="456" text-anchor="middle" font-weight="700">LOCALIZATION</text>
+      <text x="1190" y="474" text-anchor="middle" font-size="9.5" fill="var(--muted)">bbox / mask /</text>
+      <text x="1190" y="487" text-anchor="middle" font-size="9.5" fill="var(--muted)">time interval</text>
+
+      <rect x="1280" y="430" width="140" height="70" rx="8" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+      <text x="1350" y="456" text-anchor="middle" font-weight="700">ABSTAIN?</text>
+      <text x="1350" y="474" text-anchor="middle" font-size="9.5" fill="var(--muted)">if OOD / near</text>
+      <text x="1350" y="487" text-anchor="middle" font-size="9.5" fill="var(--muted)">boundary</text>
+    </g>
+
+    <path d="M870,500 V515" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M1030,500 V515" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M1190,500 V515" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M1350,500 V515" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M870,515 H1350" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M1110,515 V560" fill="none" stroke="currentColor" stroke-width="1.6" marker-end="url(#a1)"/>
+
+    <rect x="800" y="560" width="620" height="54" rx="8" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+    <text x="1110" y="582" text-anchor="middle" font-weight="700" font-size="12.5">STRUCTURED EVIDENCE</text>
+    <text x="1110" y="602" text-anchor="middle" font-size="11" fill="var(--muted)">per-modality confidence + top signals + localization</text>
+
+    <path d="M1110,614 V650" fill="none" stroke="currentColor" stroke-width="1.6" marker-end="url(#a1)"/>
+
+    <rect x="800" y="650" width="620" height="54" rx="8" style="fill:var(--surface);stroke:var(--border)" stroke-width="1.3"/>
+    <text x="1110" y="672" text-anchor="middle" font-weight="700" font-size="12.5">EXPLANATION GENERATOR</text>
+    <text x="1110" y="692" text-anchor="middle" font-size="11" fill="var(--muted)">LLM or template → plain-language rationale</text>
+
+    <path d="M1110,704 V730" fill="none" stroke="currentColor" stroke-width="1.6" marker-end="url(#a1)"/>
+
+    <rect x="800" y="730" width="620" height="54" rx="8" style="fill:var(--accent);fill-opacity:0.14;stroke:var(--accent)" stroke-width="1.6"/>
+    <text x="1110" y="752" text-anchor="middle" font-weight="700" font-size="13" fill="var(--accent)">FINAL OUTPUT</text>
+    <text x="1110" y="772" text-anchor="middle" font-size="11">label + calibrated score + localization + explanation</text>
+
+  </g>
+</svg>

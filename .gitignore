@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model weights & large artifacts
+*.pt
+*.pth
+*.ckpt
+*.onnx
+checkpoints/
+runs/
+wandb/
+
+# Env / secrets
+.env
+.env.*
