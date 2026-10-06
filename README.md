@@ -1,81 +1,33 @@
 # HNX26PSI10 — Multimodal Deepfake & Digital Forensics
 
-> AI can now generate fake images, video, and audio that look and sound real. This project builds a forensics system that examines a submission across all three modalities, returns an authenticity score with supporting evidence, and is designed from the ground up to generalize to manipulation techniques it has never seen before.
-
-Built for **HackNex 2026**, Problem Statement **PSI10**. Full statement: [`docs/HackNex2026-Problem-Statement.pdf`](docs/HackNex2026-Problem-Statement.pdf).
-
----
-
-## The problem
-
-Good deepfakes rarely fail on just one signal — face swaps, synthetic faces, lip-sync mismatch, voice cloning, image manipulation, and re-encoding each leave different traces. A system that only looks at pixels, or only at audio, misses what the other modality would have caught. The brief asks for a detector that:
-
-- scores authenticity with **evidence**, not a bare number
-- generalizes to forgery techniques it wasn't trained on (capped score for memorizing known fakes)
-- localizes **where** the manipulation is
-- checks whether audio and video actually **agree** with each other
-- survives compression, cropping, and re-encoding
-- doesn't flag real content just because it's unusual
-
-## Our approach
-
-Three parallel forensic branches — **visual**, **audio**, and **cross-modal audio-visual consistency** — feed a confidence-weighted fusion layer, deliberately gated so the (typically weaker) audio signal isn't drowned out by visual features. The fused, calibrated score comes with a 4-way authenticity label, localization, an abstention flag for out-of-distribution inputs, and a plain-language explanation built from the same evidence the model used to decide.
-
-<p align="center"><img src="docs/architecture/diagrams/system-architecture.svg" alt="System architecture: visual, audio, and cross-modal branches feed a fusion layer that outputs a calibrated score, label, localization, and explanation" width="100%"></p>
-
-Full design rationale — every architectural choice traced back to the paper(s) that justify it — lives in **[`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)**.
-
-### Build order
-
-<p align="center"><img src="docs/architecture/diagrams/pipeline.svg" alt="Five-stage build order: visual-only MVP, add audio, add cross-modal sync, add explanation and calibration, then stretch goals" width="100%"></p>
-
-Stages 1–4 alone satisfy every judging criterion at MVP level; stage 5 is optional polish.
+Research base for our HackNex 2026 (Problem Statement PSI10) submission: a curated, topic-organized library of the papers behind our approach to multimodal deepfake and digital-forensics detection.
 
 ## Repository structure
 
 ```
 .
-├── README.md                          ← you are here
-├── docs/
-│   ├── HackNex2026-Problem-Statement.pdf
-│   ├── architecture/
-│   │   ├── ARCHITECTURE.md            ← full architecture, pipeline, requirements, datasets
-│   │   └── diagrams/                  ← system-architecture.svg, pipeline.svg
-│   └── papers/
-│       ├── README.md                  ← annotated index of all 42 papers
-│       ├── 01-visual-generation-and-forensics/
-│       ├── 02-audio-voice-cloning/
-│       ├── 03-multimodal-fusion-explainability/
-│       └── 04-detection-surveys/
-└── .gitignore
+├── README.md
+└── docs/
+    └── papers/
+        ├── README.md                                  ← annotated index of all 42 papers
+        ├── 01-visual-generation-and-forensics/         (10 papers)
+        ├── 02-audio-voice-cloning/                     (14 papers)
+        ├── 03-multimodal-fusion-explainability/        (9 papers)
+        └── 04-detection-surveys/                       (8 papers)
 ```
 
-Source code (`src/`) lands here once implementation starts — this repo currently captures the research and design phase: 42 papers reviewed, architecture decided, build order sequenced.
+## Papers
 
-## Research base
+Browse the full annotated bibliography in **[`docs/papers/README.md`](docs/papers/README.md)**.
 
-42 papers, read and distilled into the architecture decisions above. Browse the full annotated bibliography — grouped by what each paper actually informed — in **[`docs/papers/README.md`](docs/papers/README.md)**.
-
-| Group | Papers | Informs |
+| Group | Papers | Covers |
 |---|---|---|
-| [Visual generation & forensics](docs/papers/01-visual-generation-and-forensics/) | 10 | What artifacts face-swap/synthetic-face/diffusion generators leave behind |
-| [Audio & voice cloning](docs/papers/02-audio-voice-cloning/) | 14 | Vocoder/codec-LM artifact families, lip-sync metrics, dubbing pipelines |
-| [Multimodal fusion & explainability](docs/papers/03-multimodal-fusion-explainability/) | 9 | Core fusion architecture, localization, explanation generation |
-| [Detection surveys](docs/papers/04-detection-surveys/) | 8 | Dataset catalogue, taxonomy, documented generalization failures |
-
-## Datasets
-
-**Image/video**: FaceForensics++, Celeb-DF(v2), DFDC, DeeperForensics-1.0, WildDeepfake, ForgeryNet, KoDF, DeepFakeFace/DFF
-**Audio**: ASVspoof 2019/2021, WaveFake, In-the-Wild, FoR, ADD2022/2023
-**Multimodal**: FakeAVCeleb, AV-Deepfake1M, LAV-DF, PolyGlotFake
-
-Full dataset rationale and the recommended train/OOD split: [`docs/architecture/ARCHITECTURE.md § 5`](docs/architecture/ARCHITECTURE.md#5-datasets).
+| [Visual generation & forensics](docs/papers/01-visual-generation-and-forensics/) | 10 | Face-swap, synthetic-face, and diffusion generation techniques and their forensic traces |
+| [Audio & voice cloning](docs/papers/02-audio-voice-cloning/) | 14 | Voice cloning, neural vocoders, lip-sync and dubbing generation |
+| [Multimodal fusion & explainability](docs/papers/03-multimodal-fusion-explainability/) | 9 | Fusing modalities, localizing manipulations, generating explanations |
+| [Detection surveys](docs/papers/04-detection-surveys/) | 8 | Field taxonomy, standard datasets, documented open challenges |
 
 ## Team
 
-- [Charu-1917](https://github.com/Charu-1917) — Charunetra NR
-- [ranjith-saravanan](https://github.com/ranjith-saravanan) — Ranjith S
-
-## Status
-
-🔬 Research & architecture phase complete — implementation in progress.
+- [Charu-1917](https://github.com/Charu-1917)
+- [ranjith-saravanan](https://github.com/ranjith-saravanan)

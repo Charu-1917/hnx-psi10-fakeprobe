@@ -1,6 +1,6 @@
 # Literature Review — Paper Index
 
-42 papers underpinning [`../architecture/ARCHITECTURE.md`](../architecture/ARCHITECTURE.md), grouped by the role each plays in the system design. Problem statement: [`HackNex2026-Problem-Statement.pdf`](../HackNex2026-Problem-Statement.pdf).
+42 papers reviewed for HNX26PSI10 (Multimodal Deepfake & Digital Forensics), grouped by topic.
 
 ---
 
@@ -27,7 +27,7 @@ Voice cloning, neural vocoders, and lip-sync/dubbing generation — tells us wha
 
 | Paper | Takeaway |
 |---|---|
-| `1-s2.0-S2090447926002649-main.pdf` | Unified multimodal explainable detector (CNN+BiLSTM+XGBoost per modality + cross-attention fusion + SHAP/LIME/Grad-CAM); 96–99% accuracy — closest existing blueprint to our system |
+| `1-s2.0-S2090447926002649-main.pdf` | Unified multimodal explainable detector (CNN+BiLSTM+XGBoost per modality + cross-attention fusion + SHAP/LIME/Grad-CAM); 96–99% accuracy |
 | `2512.05126v2.pdf` (SyncVoice) | Flow-matching video dubbing; synthetic output's LSE-C (8.36) **beat** its own ground truth (7.33) — hard proof sync scores alone are gameable |
 | `2606.19747v1.pdf` | Not relevant — Quranic Arabic ASR fine-tuning |
 | `2609.12918v1.pdf` (PhaseGAN) | Lightweight GAN vocoder; phase spectra are purely synthetic with no ground-truth supervision — phase-coherence is a vocoder fingerprint |
@@ -44,7 +44,7 @@ Voice cloning, neural vocoders, and lip-sync/dubbing generation — tells us wha
 
 ## [03 — Multimodal Fusion & Explainability](03-multimodal-fusion-explainability/) (9 papers)
 
-Core architecture group: how to fuse modalities, localize manipulations, and generate human-readable explanations.
+How to fuse modalities, localize manipulations, and generate human-readable explanations.
 
 | Paper | Takeaway |
 |---|---|
@@ -52,7 +52,7 @@ Core architecture group: how to fuse modalities, localize manipulations, and gen
 | `2308.14970v1.pdf` | Audio deepfake detection survey; SSL embeddings (XLS-R/HuBERT) generalize far better OOD than handcrafted spectral features |
 | `3801962.pdf` | Deepfake generation/detection benchmark survey; documents cross-dataset AUC collapse as the field's central unsolved problem |
 | `fdata-05-1001063.pdf` | Audio deepfake survey; DeepSonar's neuron-activation-pattern idea as a lightweight explainability signal |
-| `Li_Omni-Fake...CVPR_2026_paper.pdf` | **Closest system to our target**: unified 4-modality MLLM outputting {label, bbox/interval localization, NL explanation}; explicit disjoint-generator OOD benchmark |
+| `Li_Omni-Fake...CVPR_2026_paper.pdf` | Unified 4-modality MLLM outputting {label, bbox/interval localization, NL explanation}; explicit disjoint-generator OOD benchmark |
 | `s10791-026-10077-1.pdf` | Multimodal AV survey; AVTENet/AVA-CL/Multimodaltrace audio-visual transformer ensembles beat single-modality detectors by 10–40 pts OOD |
 | `s11760-025-03970-7.pdf` | Diffusion-model denoising as a preprocessing step improves robustness to compression/noise by 2–5 pts |
 | `s44163-025-00337-2.pdf` | GAN-generation taxonomy; GAN-fingerprint detectors are brittle — adversarial fingerprint removal cuts accuracy up to 50% |
@@ -69,7 +69,7 @@ Broad review papers — field taxonomy, standard datasets, and documented open c
 | `s00371-024-03791-8.pdf` | Multi-level DWT + ViT detector (single-method, used for benchmark numbers) |
 | `s10462-024-10810-6.pdf` | Video-specific SLR; dataset generations (1st/2nd/3rd-gen) classification scheme |
 | `s11432-024-4400-8.pdf` | CLIP-based foundation-model detector (LEDNet) for generalized cross-generator detection |
-| `Understanding_Audiovisual_Deepfake_Detection...pdf` | AV-specific survey; formal **4-way taxonomy (FVFA/RVFA/FVRA/RVRA)** adopted directly in our output scheme; phoneme-viseme mismatch (M/B/P lip closure) as a concrete feature; humans score 64–66% vs AI's 75–97% on AV detection |
+| `Understanding_Audiovisual_Deepfake_Detection...pdf` | AV-specific survey; formal 4-way taxonomy (FVFA/RVFA/FVRA/RVRA); phoneme-viseme mismatch (M/B/P lip closure) as a concrete detection feature; humans score 64–66% vs AI's 75–97% on AV detection |
 | `Visual_Deepfake_Detection_Review...pdf` | Spatial/temporal/frequency/spatiotemporal taxonomy; JPEG/resize masks GAN artifacts — direct hit on compression-robustness criterion |
 | `WIREs...Heidari...pdf` | Concrete generalization-collapse evidence: ~100% AUC (UADFV/FF++) → <60% AUC (Celeb-DF) with the *same* detector |
 
@@ -80,5 +80,3 @@ Broad review papers — field taxonomy, standard datasets, and documented open c
 **Image/video**: FaceForensics++, Celeb-DF(v2), DFDC, DeeperForensics-1.0, WildDeepfake, ForgeryNet, KoDF, DF-TIMIT, OpenForensics, DeepFakeFace/DFF
 **Audio**: ASVspoof 2019/2021, WaveFake, In-the-Wild, FoR, ADD2022/2023, CFAD
 **Multimodal/AV**: FakeAVCeleb, AV-Deepfake1M, LAV-DF, TVIL, PolyGlotFake
-
-See [`../architecture/ARCHITECTURE.md § 5`](../architecture/ARCHITECTURE.md#5-datasets) for the recommended train/OOD split.
