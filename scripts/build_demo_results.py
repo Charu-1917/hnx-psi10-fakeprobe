@@ -1,17 +1,19 @@
 """
-Builds demo_results/{video,image,audio}.json -- SAMPLE data in the UI schema.
+Builds demo_results/{video,image,audio}.json in the UI schema.
 
-Nothing here is a live analysis. Every file is flagged "demo": true and "sample_data": true.
-The video sample reuses the per-frame TruFor scores/regions stored in dump.json (a real run on a
-local test clip); its audio score, lip-sync offset and frame size are SAMPLE values (the dump used
-mocked audio/sync). Image and audio samples are fully synthetic illustrations.
+Nothing here is a live analysis. Every file is flagged "demo": true.
+The video demo is a cached REAL run (dump.json) converted by presenter.present(): demo=true,
+sample_data=false. Image and audio demos are synthetic: demo=true, sample_data=true.
 
 Run:  python scripts/build_demo_results.py
 """
 import json
 import os
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+from presenter import present  # noqa: E402
 OUT = os.path.join(ROOT, "demo_results")
 
 W_VIS, W_AUD, W_SYNC = 0.40, 0.30, 0.30  # same weights as fusion/evidence_fusion.py
@@ -67,74 +69,37 @@ def write(name, obj):
 
 
 def build_video():
+    """Cached REAL run: dump.json (Ranjith's temporal TruFor run) converted by the presenter.
+
+    In that run audio (AASIST) and lip-sync (SyncNet) were MOCKED placeholders (see dump_results.py), so
+    they are removed here and the score is the visual-only fusion, exactly what EvidenceFusionEngine
+    does when a modality is missing (weights are renormalised over the available ones)."""
     d = json.load(open(os.path.join(ROOT, "dump.json")))
-    fw, fh = 1280, 720  # SAMPLE assumption; dump regions fit inside 1184x720
-    frames = sorted(d["video_visual"]["evidence_frames"], key=lambda e: e["timestamp_sec"])
-    thr = .5
-    timeline = [{"t": e["timestamp_sec"], "fake_prob": round(e["visual_score"], 4),
-                 "suspicious": e["visual_score"] >= thr} for e in frames]
-    frame_regions, areas = [], []
-    for e in frames:
-        regs = [{"x": r["x"], "y": r["y"], "w": r["width"], "h": r["height"], "mean": r["mean_anomaly"],
-                 "max": r["max_anomaly"], "rel": r.get("mean_reliability", 0.0)} for r in e["suspicious_regions"]]
-        frame_regions.append({"timestamp_sec": e["timestamp_sec"], "frame_index": e["frame_index"],
-                              "score": round(e["visual_score"], 4), "regions": regions_out(regs)})
-        for r in regs:
-            areas.append({"n": len(areas) + 1, "kind": "region", "time": f"{e['timestamp_sec']}s",
-                          "where": where(r["x"], r["y"], r["w"], r["h"], fw, fh),
-                          "what": what(r["w"], r["h"], r["x"], fw, fh),
-                          "percent_fake": round(r["mean"] * 100), "label": label(r["mean"])})
-    tl = d["suspicious_timeline"]
-    ivs = ", ".join(f"{i['start_time']:g}s" if i["start_time"] == i["end_time"]
-                    else f"{i['start_time']:g}–{i['end_time']:g}s" for i in tl)
-    peak = max(frames, key=lambda e: e["visual_score"])
-    hot = [e for e in frames if e["visual_score"] >= thr]
-    v, a, off = peak["visual_score"], 0.62, 4  # a, off = SAMPLE values
-    ss = sync_score(off)
-    fused = (W_VIS * v + W_AUD * a + W_SYNC * ss) / (W_VIS + W_AUD + W_SYNC)
-    pr = peak["suspicious_regions"][0]
-    reasons = [
-        {"signal": "visual", "severity": "bad" if len(hot) > len(frames) / 4 else "warn",
-         "text": f"Picture: {len(hot)} of {len(frames)} checked moments show signs of editing. Strongest at "
-                 f"{peak['timestamp_sec']}s (score {peak['visual_score']:.2f}), around the "
-                 f"{where(pr['x'], pr['y'], pr['width'], pr['height'], fw, fh)} (approximate)."},
-        {"signal": "over_time", "severity": "bad" if len(tl) > 1 else "warn",
-         "text": f"Over time: suspicious in {len(tl)} separate moments ({ivs}). A repeating pattern is "
-                 f"stronger evidence than one odd frame."},
-        {"signal": "voice", "severity": "bad" if a > .5 else "ok",
-         "text": f"Voice: the synthetic-voice score for the whole clip is {a} "
-                 f"({'the voice shows signs of being generated' if a > .5 else 'the voice looks natural'}). "
-                 f"The checker gives one score per clip, so it cannot say which seconds are fake."},
-        {"signal": "lipsync", "severity": "bad" if off > 2 else "ok",
-         "text": f"Voice: lips are {off} frames out of step with the audio "
-                 f"{'(typical of dubbed / face-swapped video)' if off > 2 else '(normal)'}."},
-    ]
-    return {
-        "demo": True, "sample_data": True,
-        "provenance": "Visual scores, regions and timeline come from a real TruFor run on a local test clip "
-                      "(dump.json). Audio score, lip-sync offset and frame size are SAMPLE values. "
-                      "This is not a live analysis.",
-        "media_type": "video", "engine": "demo",
-        "verdict_label": verdict(fused), "ai_probability_pct": round(fused * 100), "certainty": certainty(fused),
-        "reasons": reasons, "timeline": timeline, "frame_regions": frame_regions, "audio_segments": [],
-        "all_detected_areas": areas, "frame_size": {"w": fw, "h": fh},
-        "video_duration_sec": 10.0,
-        "manipulation_score": round(fused, 4), "decision": decision(fused),
-        "modalities": {"visual_score": round(v, 4), "audio_score": a, "sync_desync_score": round(ss, 4)},
-        "sync_evidence": {"offset_frames": off, "offset_ms": round(off / 25.0 * 1000, 1),
-                          "confidence": 3.4, "reliable": True},
-        "visual_evidence": {"anomaly_map_path": None, "reliability_map_path": None},
-        "evidence": [f"Sample result. Visual analysis checked {len(frames)} moments, {len(hot)} above {thr}.",
-                     f"Audio spoof score {a} (sample value).", f"Sync offset {off} frames (sample value).",
-                     f"The final fusion result is {decision(fused)}."],
-        "suspicious_regions": peak["suspicious_regions"],
-        "suspicious_timeline": [{k: v2 for k, v2 in i.items() if k != "evidence_frames"} for i in tl],
-        "video_visual": {k: d["video_visual"][k] for k in ("mean_score", "peak_score", "peak_timestamp_sec",
-                                                           "frames_analyzed")},
-        "processing": {"visual_time_ms": d["processing"]["visual_time_ms"], "audio_time_ms": None,
+    v = d["modalities"]["visual_score"]
+    d["modalities"] = {"visual_score": v, "audio_score": None, "sync_desync_score": None}
+    d["sync_evidence"] = {"offset_frames": None, "offset_ms": None, "confidence": None, "reliable": None}
+    d["manipulation_score"] = v
+    d["decision"] = decision(v)
+    d["evidence"] = [f"Visual analysis checked {d['video_visual']['frames_analyzed']} moments of the video.",
+                     "Audio and lip-sync were not measured in this cached run.",
+                     f"The final fusion result is {d['decision']}."]
+    d["visual_evidence"] = {"anomaly_map_path": None, "reliability_map_path": None}  # local paths removed
+    for e in d["video_visual"]["evidence_frames"]:
+        e["artifact_paths"] = {}
+    for t in d["suspicious_timeline"]:
+        for e in t["evidence_frames"]:
+            e["artifact_paths"] = {}
+    d["processing"] = {"visual_time_ms": d["processing"]["visual_time_ms"], "audio_time_ms": None,
                        "sync_time_ms": None, "total_time_ms": None,
-                       "note": "visual time is from the real CPU run; audio/sync were not timed"},
-    }
+                       "note": "visual time is from the real CPU run; audio/sync were not run"}
+    out = present(d, "video", "demo")
+    out["reasons"].append({"signal": "voice", "severity": "warn",
+                           "text": "Voice and lip-sync: not measured in this cached run, so they are not part of the score."})
+    out.update({"demo": True, "sample_data": False, "cached_real_run": True, "video_duration_sec": 10.0,
+                "provenance": "Cached result of a real run of the deep engine (TruFor visual analysis on a local "
+                              "test clip, 20 moments, CPU). Audio and lip-sync were not measured. "
+                              "The frame size is estimated from the box positions."})
+    return out
 
 
 def build_image():
