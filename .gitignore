@@ -29,3 +29,16 @@ wandb/
 # Env / secrets
 .env
 .env.*
+
+# Project Specific
+artifacts_*/
+temp_upload_*
+temp_syncnet_work/
+weights/
+tests/syncnet_work/
+*.mp4
+*.wav
+*.jpg
+*.png
+node_modules/
+dist/
