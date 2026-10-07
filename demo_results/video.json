@@ -1,0 +1,856 @@
+{
+  "demo": true,
+  "sample_data": true,
+  "provenance": "Visual scores, regions and timeline come from a real TruFor run on a local test clip (dump.json). Audio score, lip-sync offset and frame size are SAMPLE values. This is not a live analysis.",
+  "media_type": "video",
+  "engine": "demo",
+  "verdict_label": "AI_GENERATED",
+  "ai_probability_pct": 53,
+  "certainty": "low",
+  "reasons": [
+    {
+      "signal": "visual",
+      "severity": "warn",
+      "text": "Picture: 3 of 20 checked moments show signs of editing. Strongest at 0.0s (score 0.61), around the middle-centre of the frame (approximate)."
+    },
+    {
+      "signal": "over_time",
+      "severity": "bad",
+      "text": "Over time: suspicious in 3 separate moments (0s, 5s, 8s). A repeating pattern is stronger evidence than one odd frame."
+    },
+    {
+      "signal": "voice",
+      "severity": "bad",
+      "text": "Voice: the synthetic-voice score for the whole clip is 0.62 (the voice shows signs of being generated). The checker gives one score per clip, so it cannot say which seconds are fake."
+    },
+    {
+      "signal": "lipsync",
+      "severity": "bad",
+      "text": "Voice: lips are 4 frames out of step with the audio (typical of dubbed / face-swapped video)."
+    }
+  ],
+  "timeline": [
+    {
+      "t": 0.0,
+      "fake_prob": 0.6056,
+      "suspicious": true
+    },
+    {
+      "t": 0.25,
+      "fake_prob": 0.4625,
+      "suspicious": false
+    },
+    {
+      "t": 0.5,
+      "fake_prob": 0.326,
+      "suspicious": false
+    },
+    {
+      "t": 1.0,
+      "fake_prob": 0.3425,
+      "suspicious": false
+    },
+    {
+      "t": 2.0,
+      "fake_prob": 0.4406,
+      "suspicious": false
+    },
+    {
+      "t": 3.0,
+      "fake_prob": 0.3768,
+      "suspicious": false
+    },
+    {
+      "t": 4.0,
+      "fake_prob": 0.4,
+      "suspicious": false
+    },
+    {
+      "t": 4.5,
+      "fake_prob": 0.3733,
+      "suspicious": false
+    },
+    {
+      "t": 4.75,
+      "fake_prob": 0.3821,
+      "suspicious": false
+    },
+    {
+      "t": 5.0,
+      "fake_prob": 0.5622,
+      "suspicious": true
+    },
+    {
+      "t": 5.25,
+      "fake_prob": 0.499,
+      "suspicious": false
+    },
+    {
+      "t": 5.5,
+      "fake_prob": 0.4212,
+      "suspicious": false
+    },
+    {
+      "t": 6.0,
+      "fake_prob": 0.3741,
+      "suspicious": false
+    },
+    {
+      "t": 7.0,
+      "fake_prob": 0.4583,
+      "suspicious": false
+    },
+    {
+      "t": 7.5,
+      "fake_prob": 0.4282,
+      "suspicious": false
+    },
+    {
+      "t": 7.75,
+      "fake_prob": 0.4942,
+      "suspicious": false
+    },
+    {
+      "t": 8.0,
+      "fake_prob": 0.5234,
+      "suspicious": true
+    },
+    {
+      "t": 8.25,
+      "fake_prob": 0.4472,
+      "suspicious": false
+    },
+    {
+      "t": 8.5,
+      "fake_prob": 0.4158,
+      "suspicious": false
+    },
+    {
+      "t": 9.0,
+      "fake_prob": 0.4291,
+      "suspicious": false
+    }
+  ],
+  "frame_regions": [
+    {
+      "timestamp_sec": 0.0,
+      "frame_index": 0,
+      "score": 0.6056,
+      "regions": [
+        {
+          "x": 204,
+          "y": 35,
+          "w": 862,
+          "h": 685,
+          "mean_anomaly": 0.8732,
+          "max_anomaly": 0.9886,
+          "reliability": 0.4242,
+          "source": "heatmap"
+        },
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 48,
+          "mean_anomaly": 0.9078,
+          "max_anomaly": 0.9895,
+          "reliability": 0.7958,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 0.25,
+      "frame_index": 6,
+      "score": 0.4625,
+      "regions": [
+        {
+          "x": 485,
+          "y": 38,
+          "w": 486,
+          "h": 571,
+          "mean_anomaly": 0.7481,
+          "max_anomaly": 0.9784,
+          "reliability": 0.3961,
+          "source": "heatmap"
+        },
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9218,
+          "max_anomaly": 0.9944,
+          "reliability": 0.815,
+          "source": "heatmap"
+        },
+        {
+          "x": 288,
+          "y": 622,
+          "w": 27,
+          "h": 42,
+          "mean_anomaly": 0.5199,
+          "max_anomaly": 0.5541,
+          "reliability": 0.6353,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 0.5,
+      "frame_index": 12,
+      "score": 0.326,
+      "regions": [
+        {
+          "x": 647,
+          "y": 210,
+          "w": 62,
+          "h": 47,
+          "mean_anomaly": 0.6067,
+          "max_anomaly": 0.7188,
+          "reliability": 0.5303,
+          "source": "heatmap"
+        },
+        {
+          "x": 563,
+          "y": 214,
+          "w": 42,
+          "h": 38,
+          "mean_anomaly": 0.5582,
+          "max_anomaly": 0.6418,
+          "reliability": 0.4623,
+          "source": "heatmap"
+        },
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.93,
+          "max_anomaly": 0.9971,
+          "reliability": 0.8174,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 1.0,
+      "frame_index": 24,
+      "score": 0.3425,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9328,
+          "max_anomaly": 0.998,
+          "reliability": 0.8237,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 2.0,
+      "frame_index": 48,
+      "score": 0.4406,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9373,
+          "max_anomaly": 0.9982,
+          "reliability": 0.8966,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 3.0,
+      "frame_index": 72,
+      "score": 0.3768,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9349,
+          "max_anomaly": 0.9979,
+          "reliability": 0.8783,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 4.0,
+      "frame_index": 96,
+      "score": 0.4,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 578,
+          "w": 47,
+          "h": 46,
+          "mean_anomaly": 0.9369,
+          "max_anomaly": 0.9976,
+          "reliability": 0.9105,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 4.5,
+      "frame_index": 108,
+      "score": 0.3733,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9342,
+          "max_anomaly": 0.9973,
+          "reliability": 0.8875,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 4.75,
+      "frame_index": 114,
+      "score": 0.3821,
+      "regions": [
+        {
+          "x": 521,
+          "y": 224,
+          "w": 67,
+          "h": 53,
+          "mean_anomaly": 0.5612,
+          "max_anomaly": 0.6819,
+          "reliability": 0.503,
+          "source": "heatmap"
+        },
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9333,
+          "max_anomaly": 0.9972,
+          "reliability": 0.8945,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 5.0,
+      "frame_index": 120,
+      "score": 0.5622,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9387,
+          "max_anomaly": 0.9984,
+          "reliability": 0.9302,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 5.25,
+      "frame_index": 126,
+      "score": 0.499,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9378,
+          "max_anomaly": 0.9979,
+          "reliability": 0.9299,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 5.5,
+      "frame_index": 132,
+      "score": 0.4212,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9383,
+          "max_anomaly": 0.9977,
+          "reliability": 0.9056,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 6.0,
+      "frame_index": 144,
+      "score": 0.3741,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9341,
+          "max_anomaly": 0.9977,
+          "reliability": 0.8775,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 7.0,
+      "frame_index": 168,
+      "score": 0.4583,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9374,
+          "max_anomaly": 0.998,
+          "reliability": 0.9122,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 7.5,
+      "frame_index": 180,
+      "score": 0.4282,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9361,
+          "max_anomaly": 0.9975,
+          "reliability": 0.9058,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 7.75,
+      "frame_index": 186,
+      "score": 0.4942,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9378,
+          "max_anomaly": 0.9979,
+          "reliability": 0.9232,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 8.0,
+      "frame_index": 192,
+      "score": 0.5234,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.939,
+          "max_anomaly": 0.998,
+          "reliability": 0.9249,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 8.25,
+      "frame_index": 198,
+      "score": 0.4472,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9373,
+          "max_anomaly": 0.9979,
+          "reliability": 0.9189,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 8.5,
+      "frame_index": 204,
+      "score": 0.4158,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9362,
+          "max_anomaly": 0.9978,
+          "reliability": 0.887,
+          "source": "heatmap"
+        }
+      ]
+    },
+    {
+      "timestamp_sec": 9.0,
+      "frame_index": 216,
+      "score": 0.4291,
+      "regions": [
+        {
+          "x": 1137,
+          "y": 577,
+          "w": 47,
+          "h": 47,
+          "mean_anomaly": 0.9349,
+          "max_anomaly": 0.998,
+          "reliability": 0.8993,
+          "source": "heatmap"
+        }
+      ]
+    }
+  ],
+  "audio_segments": [],
+  "all_detected_areas": [
+    {
+      "n": 1,
+      "kind": "region",
+      "time": "0.0s",
+      "where": "middle-centre of the frame",
+      "what": "large central area",
+      "percent_fake": 87,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 2,
+      "kind": "region",
+      "time": "0.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 91,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 3,
+      "kind": "region",
+      "time": "0.25s",
+      "where": "middle-centre of the frame",
+      "what": "large central area",
+      "percent_fake": 75,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 4,
+      "kind": "region",
+      "time": "0.25s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 92,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 5,
+      "kind": "region",
+      "time": "0.25s",
+      "where": "lower-left of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 52,
+      "label": "Maybe fake"
+    },
+    {
+      "n": 6,
+      "kind": "region",
+      "time": "0.5s",
+      "where": "upper-centre of the frame",
+      "what": "central area",
+      "percent_fake": 61,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 7,
+      "kind": "region",
+      "time": "0.5s",
+      "where": "upper-centre of the frame",
+      "what": "central area",
+      "percent_fake": 56,
+      "label": "Maybe fake"
+    },
+    {
+      "n": 8,
+      "kind": "region",
+      "time": "0.5s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 93,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 9,
+      "kind": "region",
+      "time": "1.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 93,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 10,
+      "kind": "region",
+      "time": "2.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 11,
+      "kind": "region",
+      "time": "3.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 93,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 12,
+      "kind": "region",
+      "time": "4.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 13,
+      "kind": "region",
+      "time": "4.5s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 93,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 14,
+      "kind": "region",
+      "time": "4.75s",
+      "where": "upper-centre of the frame",
+      "what": "central area",
+      "percent_fake": 56,
+      "label": "Maybe fake"
+    },
+    {
+      "n": 15,
+      "kind": "region",
+      "time": "4.75s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 93,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 16,
+      "kind": "region",
+      "time": "5.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 17,
+      "kind": "region",
+      "time": "5.25s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 18,
+      "kind": "region",
+      "time": "5.5s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 19,
+      "kind": "region",
+      "time": "6.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 93,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 20,
+      "kind": "region",
+      "time": "7.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 21,
+      "kind": "region",
+      "time": "7.5s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 22,
+      "kind": "region",
+      "time": "7.75s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 23,
+      "kind": "region",
+      "time": "8.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 24,
+      "kind": "region",
+      "time": "8.25s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 25,
+      "kind": "region",
+      "time": "8.5s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 94,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 26,
+      "kind": "region",
+      "time": "9.0s",
+      "where": "lower-right of the frame",
+      "what": "edge or background of the picture",
+      "percent_fake": 93,
+      "label": "Very likely fake"
+    }
+  ],
+  "frame_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "video_duration_sec": 10.0,
+  "manipulation_score": 0.5252,
+  "decision": "UNCERTAIN",
+  "modalities": {
+    "visual_score": 0.6056,
+    "audio_score": 0.62,
+    "sync_desync_score": 0.3231
+  },
+  "sync_evidence": {
+    "offset_frames": 4,
+    "offset_ms": 160.0,
+    "confidence": 3.4,
+    "reliable": true
+  },
+  "visual_evidence": {
+    "anomaly_map_path": null,
+    "reliability_map_path": null
+  },
+  "evidence": [
+    "Sample result. Visual analysis checked 20 moments, 3 above 0.5.",
+    "Audio spoof score 0.62 (sample value).",
+    "Sync offset 4 frames (sample value).",
+    "The final fusion result is UNCERTAIN."
+  ],
+  "suspicious_regions": [
+    {
+      "x": 204,
+      "y": 35,
+      "width": 862,
+      "height": 685,
+      "area": 307319,
+      "mean_anomaly": 0.8732,
+      "max_anomaly": 0.9886,
+      "mean_reliability": 0.4242
+    },
+    {
+      "x": 1137,
+      "y": 577,
+      "width": 47,
+      "height": 48,
+      "area": 966,
+      "mean_anomaly": 0.9078,
+      "max_anomaly": 0.9895,
+      "mean_reliability": 0.7958
+    }
+  ],
+  "suspicious_timeline": [
+    {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "peak_time": 0.0,
+      "peak_score": 0.6056181192398071
+    },
+    {
+      "start_time": 5.0,
+      "end_time": 5.0,
+      "peak_time": 5.0,
+      "peak_score": 0.5621711015701294
+    },
+    {
+      "start_time": 8.0,
+      "end_time": 8.0,
+      "peak_time": 8.0,
+      "peak_score": 0.5234320163726807
+    }
+  ],
+  "video_visual": {
+    "mean_score": 0.43810531944036485,
+    "peak_score": 0.6056181192398071,
+    "peak_timestamp_sec": 0.0,
+    "frames_analyzed": 20
+  },
+  "processing": {
+    "visual_time_ms": 420157,
+    "audio_time_ms": null,
+    "sync_time_ms": null,
+    "total_time_ms": null,
+    "note": "visual time is from the real CPU run; audio/sync were not timed"
+  }
+}

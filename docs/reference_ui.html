@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeepTrace Forensics</title>
+<style>
+:root{--bg:#0b0f17;--card:#141b29;--line:#243049;--tx:#e6ecf7;--mu:#8fa0bd;--ac:#4cc9f0;--bad:#ff5d73;--ok:#3ddc97;--warn:#ffb84d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,Segoe UI,sans-serif}
+header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0}header span{color:var(--mu);font-size:12px}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mu)}
+main{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;padding:14px;max-width:1300px;margin:auto}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu)}
+button{background:var(--ac);color:#04121a;border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
+button.g{background:transparent;color:var(--tx);border:1px solid var(--line)}button:disabled{opacity:.5}
+video{width:100%;max-height:230px;background:#000;border-radius:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+#log{font:12px/1.6 Consolas,monospace;background:#0a0e15;border-radius:8px;padding:10px;height:150px;overflow:auto;color:#9fe8c0}
+.verdict{display:flex;gap:16px;align-items:center}
+.big{font-size:38px;font-weight:800}.bar{height:8px;background:#0a0e15;border-radius:9px;overflow:hidden;margin:4px 0 10px}
+.bar i{display:block;height:100%}
+.mod{display:grid;grid-template-columns:90px 1fr 48px;gap:8px;align-items:center;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.sus{color:var(--bad)}
+#chat{height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.m{padding:8px 10px;border-radius:10px;max-width:92%;white-space:pre-wrap}.u{background:#1d2b46;align-self:flex-end}.a{background:#0f1a2b;border:1px solid var(--line)}
+.tool{font:11px Consolas,monospace;color:var(--warn);margin-bottom:4px}
+input[type=text]{flex:1;min-width:0;background:#0a0e15;border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:8px}
+.chip{cursor:pointer;font-size:12px;padding:3px 9px;border:1px solid var(--line);border-radius:99px;color:var(--ac)}
+svg text{fill:#8fa0bd;font-size:10px}
+main{display:block!important;max-width:880px!important}
+body{font-size:16px}.card{padding:18px!important;border-radius:16px!important}.card h2{font-size:14px!important;color:var(--ac)!important}
+button{padding:11px 20px;font-size:15px;border-radius:10px}#run{font-size:17px;padding:14px 26px}
+input[type=file]{flex:1;min-width:200px;padding:22px;border:2px dashed var(--line);border-radius:12px;background:#0a0e15;color:var(--mu)}
+header h1{font-size:22px}video{max-height:260px}#log{height:80px}
+.verdict{flex-wrap:wrap}details summary{font-size:15px}
+</style></head><body>
+<header><h1>🔍 DeepTrace — Multimodal Deepfake Forensics</h1>
+<span class="tag">Upload → Check → See where → Ask why</span><span class="tag" id="src">sample run</span></header>
+<main>
+<section style="display:grid;gap:16px;grid-column:1/-1">
+ <div class="card"><h2>Step 1 · Upload a video, image or audio</h2><div style="color:var(--mu);margin-bottom:8px">Choose a file and press the button. The AI will tell you if it is real or fake.</div>
+  <video id="vid" controls></video>
+  <div class="row" id="modes"><span style="color:var(--mu)">Demo as:</span><button class="g" data-m="video">🎬 Video</button><button class="g" data-m="image">🖼 Image</button><button class="g" data-m="audio">🎧 Audio</button></div>
+  <div class="row"><input type="file" id="file" accept="video/*,image/*,audio/*">
+   <button id="run">🔍 Check if it is AI</button>
+   <button class="g" id="loadjson" style="font-size:12px">Advanced: load result JSON</button><input type="file" id="jf" accept=".json" hidden></div>
+  <div id="log">Waiting for input… (works without a file — replays the sample run)</div></div>
+ <div class="card" id="plain"><h2>Step 2 · Result</h2>
+  <div id="pv" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"></div>
+  <div id="reasons" style="margin-top:10px"></div></div>
+ <div class="card" id="evcard"><h2>Step 3 · Where is it fake?</h2>
+  <div class="row" id="evsel"></div>
+  <canvas id="ev" width="640" height="360" style="width:100%;border-radius:8px;background:#000"></canvas>
+  <div id="evtxt" style="margin-top:8px"></div></div>
+ <div class="card" id="audcard"><h2>🎧 Voice evidence — where is the voice fake?</h2>
+  <audio id="aud" controls style="width:100%"></audio>
+  <canvas id="wave" width="640" height="110" style="width:100%;border-radius:8px;background:#0a0e15;cursor:pointer"></canvas>
+  <div style="color:var(--mu);font-size:12px">Red blocks = parts of the voice the AI believes are synthetic. Click the wave to jump there.</div>
+  <div id="audlist"></div></div>
+ <div class="card" id="allcard"><h2>Every place the AI found</h2><div class="row"><button id="showall">Show ALL on one image</button><span style="color:var(--mu);font-size:12px">numbers match the list · red = very likely fake, orange = maybe</span></div><div id="alllist"></div></div>
+ <div class="card"><h2>Step 4 · 🤖 Ask the AI assistant</h2>
+  <div class="row"><label style="font-size:12px;color:var(--mu)"><input type="checkbox" id="useLLM"> use local LLM (Ollama) for wording</label>
+   <input type="text" id="model" value="llama3.2" style="max-width:110px"></div>
+  <div id="chat"><div class="m a">Hi! I'm the investigator agent. I call tools over the evidence JSON (frames, intervals, modalities) and explain findings. Try a suggestion below.</div></div>
+  <div class="row" id="chips"></div>
+  <div class="row"><input type="text" id="q" placeholder="Ask about the evidence…"><button id="send">Ask</button></div></div>
+<details class="card" id="tech"><summary style="cursor:pointer;font-weight:700">⚙ Technical details (for experts)</summary><div style="display:grid;gap:14px;margin-top:12px">
+ <div class="card"><h2>Verdict (fusion)</h2>
+  <div class="verdict"><div class="big" id="score">—</div><div><div id="label" style="font-weight:700"></div><div id="why" style="color:var(--mu);font-size:12px"></div></div></div>
+  <div id="mods" style="margin-top:10px"></div></div>
+ <div class="card"><h2>2 · Temporal evidence (visual score per sampled frame)</h2>
+  <svg id="chart" viewBox="0 0 640 190" width="100%"></svg>
+  <div style="color:var(--mu);font-size:12px">● coarse &nbsp; ◆ fine &nbsp; red band = suspicious interval &nbsp; click a point to inspect</div>
+  <div id="frameinfo" style="margin-top:8px"></div></div>
+ <div class="card"><h2>3 · Suspicious intervals</h2><table id="ivt"></table></div>
+</div></details>
+</section></main>
+<script>
+// ---------- Sample result (replace with real dump via "Load real result JSON") ----------
+let R={video:{duration:20,fps:30,runtime_sec:585,name:"test_video.mp4"},
+ coarse:[0,2,4,6,8,10,12,14,16,18],fine:[0.5,1,1.5,6.5,7,7.5,13.5,14.2,14.5,15],
+ scores:{0:.6056,2:.31,4:.28,6:.44,8:.30,10:.27,12:.33,14:.52,16:.29,18:.26,.5:.41,1:.36,1.5:.33,6.5:.47,7:.46,7.5:.43,13.5:.55,14.2:.58,14.5:.54,15:.45},
+ regions:{0:[{x:212,y:96,w:140,h:160,mean:.71,max:.93,rel:.88},{x:60,y:40,w:50,h:60,mean:.52,max:.68,rel:.74}],14:[{x:220,y:110,w:120,h:150,mean:.63,max:.85,rel:.81}],14.5:[{x:225,y:112,w:118,h:148,mean:.6,max:.82,rel:.8}],13.5:[{x:218,y:108,w:122,h:150,mean:.57,max:.8,rel:.79}],6:[{x:230,y:120,w:100,h:120,mean:.5,max:.7,rel:.7}]},
+ intervals:[[0,.5],[6,7.5],[13.5,15]],
+ audio:{spoof:.62},sync:{offset:-4,conf:2.1,score:.58},threshold:.4};
+const $=id=>document.getElementById(id);
+const frames0=()=>[...R.coarse.map(t=>({t,k:"coarse"})),...R.fine.map(t=>({t,k:"fine"}))].map(f=>({...f,idx:Math.round(f.t*R.video.fps),s:R.scores[f.t],regs:R.regions[f.t]||[]})).sort((a,b)=>a.t-b.t);
+let mode="video",userImg=null,audBuf=null;
+const frames=()=>{const a=frames0();return mode=="image"?a.filter(f=>f.t==0):a};
+const peak=()=>frames().reduce((a,b)=>b.s>a.s?b:a);
+const mean=()=>frames().reduce((a,f)=>a+f.s,0)/frames().length;
+function fusion(){const v=peak().s*.6+mean()*.4,a=R.audio.spoof,s=R.sync.score;const f=.5*v+.25*a+.25*s;return{v,a,s,f}}
+function log(t){const l=$("log");l.textContent+="\n"+t;l.scrollTop=1e9}
+function render(){
+ const F=frames(),fu=fusion(),p=peak();
+ $("score").textContent=(fu.f*100).toFixed(0)+"%";$("score").style.color=fu.f>.5?"var(--bad)":fu.f>.35?"var(--warn)":"var(--ok)";
+ $("label").textContent=fu.f>.5?"LIKELY MANIPULATED":fu.f>.35?"SUSPICIOUS — needs review":"LIKELY AUTHENTIC";
+ $("why").textContent=`peak ${p.s.toFixed(3)} @ ${p.t}s · ${R.intervals.length} suspicious intervals`;
+ const bar=(n,v,c)=>`<div class="mod"><span>${n}</span><div class="bar"><i style="width:${v*100}%;background:${c}"></i></div><b>${v.toFixed(2)}</b></div>`;
+ $("mods").innerHTML=bar("Visual",fu.v,"var(--ac)")+bar("Audio",fu.a,"var(--warn)")+bar("Lip-sync",fu.s,"var(--bad)")+bar("Fusion",fu.f,"#fff");
+ // chart
+ const W=640,H=190,m=28,T=R.video.duration,x=t=>m+t/T*(W-2*m),y=s=>H-24-s*(H-44);
+ let h=`<line x1="${m}" x2="${W-m}" y1="${y(R.threshold)}" y2="${y(R.threshold)}" stroke="#ffb84d" stroke-dasharray="4"/><text x="${W-m-40}" y="${y(R.threshold)-3}">thr ${R.threshold}</text>`;
+ R.intervals.forEach(i=>h+=`<rect x="${x(i[0])}" y="14" width="${Math.max(6,x(i[1])-x(i[0]))}" height="${H-38}" fill="#ff5d73" opacity=".2"/>`);
+ for(let t=0;t<=T;t+=4)h+=`<text x="${x(t)-6}" y="${H-8}">${t}s</text>`;
+ h+=`<polyline fill="none" stroke="#4cc9f0" stroke-width="1.5" points="${F.map(f=>x(f.t)+","+y(f.s)).join(" ")}"/>`;
+ F.forEach((f,i)=>{const c=f.s>R.threshold?"#ff5d73":"#4cc9f0";h+=f.k=="fine"?`<rect x="${x(f.t)-4}" y="${y(f.s)-4}" width="8" height="8" fill="${c}" transform="rotate(45 ${x(f.t)} ${y(f.s)})" data-i="${i}" style="cursor:pointer"/>`:`<circle cx="${x(f.t)}" cy="${y(f.s)}" r="5" fill="${c}" data-i="${i}" style="cursor:pointer"/>`});
+ h+=`<text x="${x(p.t)+8}" y="${y(p.s)-8}" style="fill:#ff5d73">peak</text>`;
+ $("chart").innerHTML=h;$("chart").onclick=e=>{const i=e.target.dataset.i;if(i!=null)showFrame(F[i])};
+ $("ivt").innerHTML="<tr><th>#</th><th>start</th><th>end</th><th>dur</th><th>frames</th><th>max score</th></tr>"+R.intervals.map((iv,n)=>{const fs=F.filter(f=>f.t>=iv[0]&&f.t<=iv[1]);return`<tr><td>${n+1}</td><td>${iv[0]}s</td><td>${iv[1]}s</td><td>${(iv[1]-iv[0]).toFixed(1)}s</td><td>${fs.length}</td><td class="sus">${Math.max(...fs.map(f=>f.s)).toFixed(3)}</td></tr>`}).join("");
+ showFrame(p);
+}
+function showFrame(f){$("frameinfo").innerHTML=`<b>t=${f.t}s</b> (frame ${f.idx}, ${f.k}) · score <b class="${f.s>R.threshold?"sus":""}">${f.s.toFixed(3)}</b> · ${f.regs.length} region(s)`+(f.regs.length?`<table><tr><th>x,y</th><th>w×h</th><th>mean</th><th>max</th><th>reliab.</th></tr>${f.regs.map(r=>`<tr><td>${r.x},${r.y}</td><td>${r.w}×${r.h}</td><td>${r.mean}</td><td>${r.max}</td><td>${r.rel}</td></tr>`).join("")}</table>`:"");const v=$("vid");if(v.src&&isFinite(v.duration))v.currentTime=f.t}
+// ---------- Pipeline animation ----------
+$("file").onchange=e=>{const f=e.target.files[0];if(f&&f.type.startsWith("video"))$("vid").src=URL.createObjectURL(f);R.video.name=f?f.name:R.video.name;log("loaded "+(f&&f.name))};
+$("run").onclick=async()=>{$("run").disabled=true;$("log").textContent="";
+ const steps=["[planner] media=video → plan: coarse pass → fine pass around hotspots → audio → sync → fuse","[decode] ffmpeg: "+R.video.duration+"s @ "+R.video.fps+"fps","[coarse] sampling "+R.coarse.length+" frames every 2s","[trufor] scoring coarse frames…","[agent] hotspots at 0s, 6s, 14s → scheduling fine pass (±1.5s)","[fine] sampling "+R.fine.length+" frames","[trufor] localisation maps + region stats","[aasist] audio spoof score "+R.audio.spoof,"[syncnet] offset "+R.sync.offset+" frames, conf "+R.sync.conf,"[fusion] weights visual .5 audio .25 sync .25","[done] report ready (cached run: "+R.video.runtime_sec+"s on CPU)"];
+ for(const s of steps){log(s);await new Promise(r=>setTimeout(r,450))}
+ render();$("run").disabled=false;agentSay("Analysis finished. "+summary());};
+$("loadjson").onclick=()=>$("jf").click();
+$("jf").onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!j.scores||!j.coarse)throw 0;R=j;$("src").textContent="real result JSON";render();log("loaded real JSON")}catch{alert("JSON must match the sample schema: {video,coarse,fine,scores,regions,intervals,audio,sync,threshold}")}};
+// ---------- Agent: tools over evidence ----------
+const tools={
+ get_summary:()=>{const p=peak(),f=fusion();return{peak:p.s,peak_t:p.t,mean:+mean().toFixed(3),fusion:+f.f.toFixed(3),intervals:R.intervals.length}},
+ get_frame:t=>frames().find(f=>f.t==t)||null,
+ get_intervals:()=>R.intervals,
+ explain_peak:()=>{const p=peak();return{peak:p,note:p.t==0?"Frame 0 is a first-frame/keyframe: codec init, fade-in or face-detector warm-up can inflate scores.":"",duplicates:dups()}},
+ modalities:()=>({visual:fusion().v,audio:R.audio.spoof,sync:R.sync}),
+ audit:()=>({duplicates:dups(),frames:frames().length,runtime:R.video.runtime_sec,per_frame_sec:+(R.video.runtime_sec/frames().length).toFixed(1)})};
+function dups(){const s=new Set(),d=[];frames().forEach(f=>{s.has(f.t)?d.push(f.t):s.add(f.t)});return d}
+function summary(){const f=fusion(),p=peak();return`Fusion score ${(f.f*100).toFixed(0)}% — ${f.f>.5?"likely manipulated":f.f>.35?"suspicious":"likely authentic"}. Strongest evidence: ${p.s.toFixed(3)} at ${p.t}s; ${R.intervals.length} suspicious intervals (${R.intervals.map(i=>i[0]+"–"+i[1]+"s").join(", ")}). Lip-sync is off by ${Math.abs(R.sync.offset)} frames and audio spoof is ${R.audio.spoof}.`}
+function route(q){q=q.toLowerCase();
+ if(/peak|0\.0|first|frame 0|why/.test(q))return["explain_peak"];
+ if(/interval|timeline|when|where/.test(q))return["get_intervals","get_summary"];
+ if(/audio|voice|sync|lip|modal/.test(q))return["modalities"];
+ if(/slow|runtime|time|585|fast|duplicate|audit|correct/.test(q))return["audit"];
+ return["get_summary","get_intervals","modalities"]}
+function compose(q,calls,res){const r=Object.fromEntries(calls.map((c,i)=>[c,res[i]]));let o=[];
+ if(r.explain_peak){const e=r.explain_peak;o.push(`The peak (${e.peak.s.toFixed(3)}) is at ${e.peak.t}s with ${e.peak.regs.length} flagged regions (max anomaly ${Math.max(...e.peak.regs.map(x=>x.max),0)}).`+(e.note?" "+e.note:"")+(e.duplicates.length?` ⚠ Timestamp(s) ${e.duplicates.join(", ")} were sampled twice (coarse+fine overlap).`:"")+" Recommendation: confirm by re-scoring frames 0–3 and checking for a stable region across neighbours before trusting a single-frame peak.")}
+ if(r.get_intervals)o.push("Suspicious intervals: "+r.get_intervals.map((i,n)=>`#${n+1} ${i[0]}–${i[1]}s`).join("; ")+". Intervals near 14s have consistent face-region anomalies across 3 adjacent frames — strongest temporal evidence.");
+ if(r.modalities)o.push(`Visual ${r.modalities.visual.toFixed(2)}, audio spoof ${r.modalities.audio}, lip-sync offset ${r.modalities.sync.offset} frames (confidence ${r.modalities.sync.conf}). Disagreement between modalities lowers certainty; agreement across all three raises it.`);
+ if(r.audit)o.push(`${r.audit.frames} frames in ${r.audit.runtime}s ≈ ${r.audit.per_frame_sec}s/frame (CPU TruFor dominates). Duplicates: ${r.audit.duplicates.length?r.audit.duplicates.join(", ")+"s":"none"}. Suggested fix: dedupe coarse/fine timestamps, cache model loads, downscale frames.`);
+ if(r.get_summary&&!r.explain_peak)o.push(summary());return o.join("\n\n")}
+function agentSay(t,tl){const d=document.createElement("div");d.className="m a";d.innerHTML=(tl?`<div class="tool">🔧 ${tl}</div>`:"")+"";d.append(t);$("chat").append(d);$("chat").scrollTop=1e9;return d}
+async function ask(q){if(!q.trim())return;const u=document.createElement("div");u.className="m u";u.textContent=q;$("chat").append(u);$("q").value="";
+ const calls=route(q),res=calls.map(c=>tools[c]());let ans=compose(q,calls,res);const el=agentSay("…",calls.map(c=>c+"()").join(" → "));
+ if($("useLLM").checked){try{const r=await fetch("http://localhost:11434/api/generate",{method:"POST",body:JSON.stringify({model:$("model").value,stream:false,prompt:`You are a deepfake forensics analyst. Using ONLY this evidence, answer the question concisely for a non-expert.\nEVIDENCE: ${JSON.stringify(res).slice(0,3500)}\nDRAFT: ${ans}\nQUESTION: ${q}`})});ans=(await r.json()).response||ans}catch{ans+="\n(LLM offline — used rule-based answer)"}}
+ el.lastChild.textContent=ans;$("chat").scrollTop=1e9}
+$("send").onclick=()=>ask($("q").value);$("q").onkeydown=e=>e.key=="Enter"&&ask($("q").value);
+["Summarise the verdict","Why is the peak at 0.0s?","When are the suspicious intervals?","Do audio and lip-sync agree?","Why did it take 585s?"].forEach(t=>{const c=document.createElement("span");c.className="chip";c.textContent=t;c.onclick=()=>ask(t);$("chips").append(c)});
+
+// ---------- Plain-language verdict + position evidence ----------
+function posWords(r){const W=R.video.w||640,H=R.video.h||360,cx=(r.x+r.w/2)/W,cy=(r.y+r.h/2)/H;
+ return (cy<.35?"upper":cy>.65?"lower":"middle")+"-"+(cx<.35?"left":cx>.65?"right":"centre")+" of the frame"}
+function plain(){const F=frames(),fu=fusion(),p=peak(),hot=F.filter(f=>f.s>R.threshold);
+ const pct=Math.round(fu.f*100),isAI=fu.f>.5,maybe=fu.f>.35&&!isAI;
+ const col=isAI?"var(--bad)":maybe?"var(--warn)":"var(--ok)";
+ const conf=Math.abs(fu.f-.5)>.25?"High":Math.abs(fu.f-.5)>.1?"Medium":"Low";
+ $("pv").innerHTML=`<div style="font-size:30px;font-weight:800;color:${col}">${isAI?"⚠ AI-GENERATED / EDITED":maybe?"❓ POSSIBLY AI — review":"✅ LOOKS REAL"}</div>
+ <div><div style="font-size:34px;font-weight:800">${pct}%</div><div style="color:var(--mu);font-size:12px">AI-probability · certainty: ${conf}</div></div>`;
+ const rs=[];
+ rs.push([hot.length>F.length/4?"bad":"warn",`<b>Visual:</b> ${hot.length} of ${F.length} checked frames show editing artefacts. Strongest at <b>${p.t}s</b> (${p.s.toFixed(2)})`+(p.regs[0]?`, around the <b>${posWords(p.regs[0])}</b>.`:".")]);
+ rs.push([R.intervals.length>1?"bad":"warn",`<b>Over time:</b> suspicious in ${R.intervals.length} separate moments (${R.intervals.map(i=>i[0]+"–"+i[1]+"s").join(", ")}) — a repeating pattern is stronger evidence than one odd frame.`]);
+ rs.push([R.audio.spoof>.5?"bad":"ok",`<b>Voice:</b> synthetic-voice score ${R.audio.spoof} ${R.audio.spoof>.5?"— voice shows signs of being generated.":"— voice looks natural."}`]);
+ rs.push([Math.abs(R.sync.offset)>2?"bad":"ok",`<b>Lip-sync:</b> lips are ${Math.abs(R.sync.offset)} frame(s) out of step with the audio ${Math.abs(R.sync.offset)>2?"(typical of dubbed / face-swapped video).":"(normal)."}`]);
+ const ic={bad:"🔴",warn:"🟠",ok:"🟢"};
+ $("reasons").innerHTML="<b>Why we say this:</b>"+rs.map(r=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)">${ic[r[0]]} ${r[1]}</div>`).join("")+`<div style="color:var(--mu);font-size:12px;margin-top:6px">This is a forensic estimate, not proof. High score + several independent signals agreeing = stronger conclusion.</div>`;
+ const ev=F.filter(f=>f.regs.length);$("evsel").innerHTML="";
+ ev.forEach(f=>{const b=document.createElement("button");b.className="g";b.textContent=f.t+"s";b.onclick=()=>drawEv(f);$("evsel").append(b)});
+ drawEv(ev.find(f=>f.t==p.t)||ev[0])}
+function drawEv(f){if(!f)return;const c=$("ev"),x=c.getContext("2d"),W=c.width,H=c.height,v=$("vid");
+ const paint=()=>{if(mode=='image'&&userImg)x.drawImage(userImg,0,0,W,H);else if(v.src&&v.videoWidth&&v.readyState>1)x.drawImage(v,0,0,W,H);else{x.fillStyle="#10192b";x.fillRect(0,0,W,H);x.fillStyle="#1d2b46";x.beginPath();x.ellipse(W/2,H*.45,90,115,0,0,7);x.fill();x.fillRect(W/2-150,H*.75,300,H)}
+  f.regs.forEach((r,i)=>{x.strokeStyle="#ff5d73";x.lineWidth=3;x.fillStyle="rgba(255,93,115,.18)";x.fillRect(r.x,r.y,r.w,r.h);x.strokeRect(r.x,r.y,r.w,r.h);
+   x.fillStyle="#ff5d73";x.fillRect(r.x,r.y-18,92,18);x.fillStyle="#fff";x.font="12px sans-serif";x.fillText("Region "+(i+1)+" · "+Math.round(r.mean*100)+"% fake",r.x+4,r.y-5)});
+  x.fillStyle="#fff";x.font="12px sans-serif";x.fillText("t = "+f.t+"s",8,16)};
+ if(v.src&&isFinite(v.duration)){v.onseeked=paint;v.currentTime=f.t}else paint();
+ $("evtxt").innerHTML=`<b>t=${f.t}s</b> — score ${f.s.toFixed(2)}. `+f.regs.map((r,i)=>`<div>🔴 <b>Region ${i+1}</b>: ${posWords(r)} (x=${r.x}, y=${r.y}, ${r.w}×${r.h}px). The model is ${Math.round(r.mean*100)}% sure this area was altered (peak ${Math.round(r.max*100)}%, reliability ${Math.round(r.rel*100)}%). Typical cause: blended face edges, unnatural skin texture or mismatched lighting.</div>`).join("")}
+
+function allRegs(){let n=0,o=[];frames().forEach(f=>f.regs.forEach(r=>o.push({n:++n,t:f.t,...r})));return o}
+function sev(r){return r.mean>=.6?["Very likely fake","#ff5d73"]:r.mean>=.45?["Maybe fake","#ffb84d"]:["Slightly suspicious","#ffd966"]}
+function what(r){const W=R.video.w||640,H=R.video.h||360,big=r.w*r.h/(W*H)>.04,cx=Math.abs(r.x+r.w/2-W/2)<W*.2;return big&&cx?"main face / subject":cx?"centre area":"background or edge of picture"}
+function allList(){const A=allRegs(),W=R.video.w||640,H=R.video.h||360;
+ $("alllist").innerHTML=`<div style="margin:8px 0"><b>${A.length} suspicious areas found</b> ${mode=='image'?'in this image.':'in '+new Set(A.map(a=>a.t)).size+' different moments.'}</div>`+A.map(a=>{const[l,c]=sev(a);return`<div style="padding:6px 0;border-bottom:1px solid var(--line);cursor:pointer" data-t="${a.t}"><span style="background:${c};color:#000;border-radius:99px;padding:1px 8px;font-weight:700">${a.n}</span> ${mode=='image'?'':'At <b>'+a.t+'s</b> · '}<b>${posWords(a)}</b> — on the ${what(a)}. Covers ${Math.round(a.w*a.h/(W*H)*100)}% of the picture. <span style="color:${c}">${l} (${Math.round(a.mean*100)}%)</span></div>`}).join("");
+ $("alllist").querySelectorAll("[data-t]").forEach(d=>d.onclick=()=>{const f=frames().find(f=>f.t==d.dataset.t);drawEv(f);$("ev").scrollIntoView({behavior:"smooth"})})}
+function drawAll(){const c=$("ev"),x=c.getContext("2d"),W=c.width,H=c.height;x.fillStyle="#10192b";x.fillRect(0,0,W,H);x.fillStyle="#1d2b46";x.beginPath();x.ellipse(W/2,H*.45,90,115,0,0,7);x.fill();
+ allRegs().forEach(r=>{const[l,col]=sev(r);x.strokeStyle=col;x.lineWidth=2;x.fillStyle=col+"33";x.fillRect(r.x,r.y,r.w,r.h);x.strokeRect(r.x,r.y,r.w,r.h);x.fillStyle=col;x.beginPath();x.arc(r.x+10,r.y+10,10,0,7);x.fill();x.fillStyle="#000";x.font="bold 12px sans-serif";x.fillText(r.n,r.x+(r.n>9?4:7),r.y+14)});
+ $("evtxt").innerHTML="Showing <b>all "+allRegs().length+"</b> detected areas from every checked moment. (Overlapping boxes = the same spot flagged repeatedly = stronger evidence.)"}
+$("showall").onclick=drawAll;
+
+// ---------- Multi-media: video / image / audio ----------
+R.audio.segments=[{s:3.2,e:4.6,score:.81,why:"flat, robotic pitch and no natural breathing"},{s:9,e:10.4,score:.72,why:"over-smooth sound texture typical of voice-cloning (vocoder) models"},{s:14,e:15.2,score:.66,why:"the voice does not match the lip movement"}];
+function fusion(){const v=peak().s*.6+mean()*.4,a=R.audio.spoof,sy=R.sync.score;
+ if(mode=="image")return{v:peak().s,a:0,s:0,f:peak().s};
+ if(mode=="audio")return{v:0,a:a,s:0,f:a};
+ const f=.5*v+.25*a+.25*sy;return{v,a,s:sy,f}}
+function segText(g){return`<b>${g.s}s – ${g.e}s</b>: ${g.why}`}
+function plain(){const F=frames(),fu=fusion(),p=peak(),hot=F.filter(f=>f.s>R.threshold);
+ const pct=Math.round(fu.f*100),isAI=fu.f>.5,maybe=fu.f>.35&&!isAI,col=isAI?"var(--bad)":maybe?"var(--warn)":"var(--ok)";
+ const conf=Math.abs(fu.f-.5)>.25?"High":Math.abs(fu.f-.5)>.1?"Medium":"Low",kind={video:"video",image:"image",audio:"audio clip"}[mode];
+ $("pv").innerHTML=`<div style="font-size:30px;font-weight:800;color:${col}">${isAI?"⚠ AI-GENERATED / EDITED":maybe?"❓ POSSIBLY AI — review":"✅ LOOKS REAL"}</div>
+ <div><div style="font-size:34px;font-weight:800">${pct}%</div><div style="color:var(--mu);font-size:12px">AI-probability for this ${kind} · certainty: ${conf}</div></div>`;
+ const rs=[],ic={bad:"🔴",warn:"🟠",ok:"🟢"};
+ if(mode!="audio"){
+  if(mode=="image")rs.push([p.s>.5?"bad":"warn",`<b>Picture:</b> ${p.regs.length} area(s) look edited or generated. Main one is at the <b>${p.regs[0]?posWords(p.regs[0]):"-"}</b> (${p.regs[0]?Math.round(p.regs[0].mean*100):0}% fake): blended edges, unnatural skin texture or mismatched lighting are typical signs.`]);
+  else{rs.push([hot.length>F.length/4?"bad":"warn",`<b>Picture:</b> ${hot.length} of ${F.length} checked frames show editing artefacts. Strongest at <b>${p.t}s</b> (${p.s.toFixed(2)})`+(p.regs[0]?`, around the <b>${posWords(p.regs[0])}</b>.`:".")]);
+   rs.push([R.intervals.length>1?"bad":"warn",`<b>Over time:</b> suspicious at ${R.intervals.map(i=>i[0]+"–"+i[1]+"s").join(", ")} — repeating at the same spot is stronger evidence than one odd frame.`])}}
+ if(mode!="image"){const sg=R.audio.segments;
+  rs.push([R.audio.spoof>.5?"bad":"ok",`<b>Voice:</b> synthetic-voice score ${R.audio.spoof}. Fake parts: `+sg.map(segText).join("; ")+"."]);
+  if(mode=="video")rs.push([Math.abs(R.sync.offset)>2?"bad":"ok",`<b>Lip-sync:</b> lips are ${Math.abs(R.sync.offset)} frame(s) out of step with the audio ${Math.abs(R.sync.offset)>2?"(typical of dubbed / face-swapped video).":"(normal)."}`])}
+ $("reasons").innerHTML="<b>Why we say this is "+(isAI?"AI":maybe?"possibly AI":"real")+":</b>"+rs.map(r=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)">${ic[r[0]]} ${r[1]}</div>`).join("")+`<div style="color:var(--mu);font-size:12px;margin-top:6px">Forensic estimate, not proof. Several independent signals agreeing = stronger conclusion.</div>`;
+ const ev=F.filter(f=>f.regs.length);$("evsel").innerHTML="";
+ if(mode=="video")ev.forEach(f=>{const b=document.createElement("button");b.className="g";b.textContent=f.t+"s";b.onclick=()=>drawEv(f);$("evsel").append(b)});
+ if(mode!="audio")drawEv(ev.find(f=>f.t==p.t)||ev[0]);drawAudio()}
+function drawAudio(){const c=$("wave"),x=c.getContext("2d"),W=c.width,H=c.height,D=audBuf?audBuf.duration:R.video.duration;x.clearRect(0,0,W,H);
+ const sg=R.audio.segments;sg.forEach(g=>{x.fillStyle="rgba(255,93,115,.3)";x.fillRect(g.s/D*W,0,(g.e-g.s)/D*W,H)});
+ const d=audBuf?audBuf.getChannelData(0):null;x.fillStyle="#4cc9f0";
+ for(let i=0;i<W;i+=2){let a;if(d){let m=0,st=Math.floor(i/W*d.length),n=Math.floor(d.length/W*2);for(let k=0;k<n;k+=Math.ceil(n/20))m=Math.max(m,Math.abs(d[st+k]||0));a=m}else a=.15+.5*Math.abs(Math.sin(i*.05)*Math.sin(i*.013+1));x.fillRect(i,H/2-a*H*.45,1.5,a*H*.9)}
+ x.fillStyle="#fff";x.font="11px sans-serif";sg.forEach((g,n)=>x.fillText("#"+(n+1),g.s/D*W+3,12));
+ $("audlist").innerHTML=sg.map((g,n)=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)"><span style="background:var(--bad);color:#000;border-radius:99px;padding:1px 8px;font-weight:700">${n+1}</span> ${segText(g)} — <span style="color:var(--bad)">${Math.round(g.score*100)}% synthetic</span></div>`).join("");
+ c.onclick=e=>{const t=e.offsetX/c.clientWidth*D,a=$("aud");if(a.src){a.currentTime=t;a.play()}}}
+function setMode(m){mode=m;
+ document.querySelectorAll("#modes button").forEach(b=>b.style.outline=b.dataset.m==m?"2px solid var(--ac)":"none");
+ $("audcard").style.display=m=="image"?"none":"";$("evcard").style.display=m=="audio"?"none":"";$("allcard").style.display=m=="audio"?"none":"";
+ $("vid").style.display=m=="video"?"":"none";$("tech")&&($("tech").style.display=m=="video"?"":"none");
+ $("evsel").style.display=m=="video"?"":"none";render()}
+document.querySelectorAll("#modes button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$("file").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);
+ if(f.type.startsWith("image")){userImg=new Image();userImg.onload=()=>setMode("image");userImg.src=u}
+ else{userImg=null;$("aud").src=u;try{audBuf=await new (window.AudioContext||window.webkitAudioContext)().decodeAudioData(await f.arrayBuffer())}catch{audBuf=null}
+  setMode(f.type.startsWith("audio")?"audio":"video")}});
+const _r=render;render=function(){_r();plain();allList();$('why').textContent=''};setMode('video');render();
+</script></body></html>
