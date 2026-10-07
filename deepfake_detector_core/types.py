@@ -112,6 +112,27 @@ class UnifiedForensicReport:
     visual_artifacts: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
+        serialized_evidence = []
+        for ev in self.evidence_list:
+            serialized_evidence.append({
+                "name": ev.name,
+                "modality": ev.modality,
+                "score": round(ev.score, 4),
+                "reliability": round(ev.reliability, 4),
+                "weight": round(ev.weight, 4),
+                "description": ev.description,
+                "details": {k: (round(v, 4) if isinstance(v, float) else v) for k, v in ev.details.items()}
+            })
+
+        # Extract serializable temporal / artifact metrics
+        temporal_metadata = {}
+        if "suspicious_frames" in self.visual_artifacts:
+            temporal_metadata["suspicious_frames"] = self.visual_artifacts["suspicious_frames"]
+        if "frame_timestamps" in self.visual_artifacts and self.visual_artifacts["frame_timestamps"] is not None:
+            temporal_metadata["frame_timestamps"] = [round(float(t), 2) for t in self.visual_artifacts["frame_timestamps"]]
+        if "frame_fake_probabilities" in self.visual_artifacts and self.visual_artifacts["frame_fake_probabilities"] is not None:
+            temporal_metadata["frame_fake_probabilities"] = [round(float(p), 4) for p in self.visual_artifacts["frame_fake_probabilities"]]
+
         return {
             "sample_name": self.sample_name,
             "modality": self.modality,
@@ -124,7 +145,10 @@ class UnifiedForensicReport:
             "uncertainty_score": round(self.uncertainty_score, 4),
             "quality": self.quality.to_dict(),
             "agreement_score": round(self.agreement_score, 4),
+            "evidence_list": serialized_evidence,
             "reasons": self.reasons,
             "summary_text": self.summary_text,
             "detector_summaries": [d.to_dict() for d in self.detector_results],
+            "temporal_metadata": temporal_metadata,
         }
+
