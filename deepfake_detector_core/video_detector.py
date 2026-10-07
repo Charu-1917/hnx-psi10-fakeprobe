@@ -1,21 +1,22 @@
+"""
+Multimodal Video Deepfake Detector for FakeProbe-X.
+Combines visual multi-frame temporal feature pooling, acoustic feature extraction,
+face tracking consistency, and temporal anomaly segmentation into a standardized detector.
+"""
+
 import os
 import uuid
 import subprocess
 import cv2
 import numpy as np
 import joblib
-import tempfile
+from typing import Optional, List, Tuple
+
 from .path_utils import get_video_model_path
-
-
-NUM_FRAMES = 5
-IMG_SIZE = 224
-COATNET_DIM = 768
-WHISPER_DIM = 512
-VIDEO_FEAT_DIM = 3 * COATNET_DIM   # statistical pooling (mean, max, std) -> 2304
-AUDIO_FEAT_DIM = WHISPER_DIM       # mean pooling -> 512
-FUSED_DIM = VIDEO_FEAT_DIM + AUDIO_FEAT_DIM  # 2816
-OPTIMAL_THRESHOLD = 0.5780         # derived from balanced evaluation
+from .types import DetectorResult, DecisionVerdict, QualityResult, QualityLevel
+from .quality_analyzer import InputQualityAnalyzer
+from .face_utils import FaceDetector
+from configs.forensic_config import DEFAULT_CONFIG
 
 
 def get_ffmpeg_executable() -> str:
@@ -50,40 +51,69 @@ def transcode_for_browser(input_path: str) -> str | None:
         return None
 
 
-def extract_frames_from_video(video_path: str, num_frames: int = NUM_FRAMES) -> list[np.ndarray]:
-    """Uniformly sample RGB frames from video."""
+def extract_frames_with_metadata(
+    video_path: str,
+    num_frames: int = 5,
+    max_scan_frames: int = 300
+) -> Tuple[List[np.ndarray], List[float], dict]:
+    """
+    Sample uniformly spaced frames from video and return frame timestamps and metadata.
+    """
     frames = []
+    timestamps = []
+    metadata = {}
     cap = None
+
     try:
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
-            return frames
+            return frames, timestamps, metadata
+
+        fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
+        duration_sec = total_frames / fps if fps > 0 else 0.0
+
+        metadata = {
+            "fps": float(fps),
+            "frame_count": total_frames,
+            "width": width,
+            "height": height,
+            "duration_sec": float(duration_sec),
+        }
 
         frame_buffer = []
+        time_buffer = []
         count = 0
+
         while True:
             ret, frame = cap.read()
-            if not ret or count >= 300:
+            if not ret or count >= max_scan_frames:
                 break
             if frame is not None and frame.mean() > 5:
-                frame_resized = cv2.resize(frame, (IMG_SIZE, IMG_SIZE))
-                frame_buffer.append(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB))
+                frame_buffer.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                time_buffer.append(count / fps)
             count += 1
 
         if len(frame_buffer) > 0:
-            indices = np.linspace(0, len(frame_buffer) - 1, num_frames, dtype=int)
+            indices = np.linspace(0, len(frame_buffer) - 1, min(num_frames, len(frame_buffer)), dtype=int)
             frames = [frame_buffer[i] for i in indices]
+            timestamps = [time_buffer[i] for i in indices]
+
     except Exception:
         pass
     finally:
         if cap is not None:
             cap.release()
 
+    # Padding if video is extremely short
     if 0 < len(frames) < num_frames:
         while len(frames) < num_frames:
-            frames.append(frames[0].copy())
+            frames.append(frames[-1].copy())
+            timestamps.append(timestamps[-1] if timestamps else 0.0)
 
-    return frames
+    return frames, timestamps, metadata
 
 
 def extract_audio_from_video(video_path: str) -> str | None:
@@ -119,15 +149,17 @@ def extract_audio_from_video(video_path: str) -> str | None:
             process.wait()
         return None
 
-    if os.path.exists(tmp_wav) and os.path.getsize(tmp_wav) > 0:
+    if os.path.exists(tmp_wav) and os.path.getsize(tmp_wav) > 1000:
         return tmp_wav
     return None
 
 
 class VideoDeepfakeDetector:
-    """Multimodal (visual + acoustic intermediate fusion) deepfake detector."""
+    """Multimodal intermediate fusion video deepfake detector."""
 
-    def __init__(self, xgb_path: str | None = None):
+    def __init__(self, xgb_path: str | None = None, config=DEFAULT_CONFIG):
+        self.config = config
+
         if xgb_path is None:
             xgb_path = get_video_model_path()
 
@@ -139,61 +171,189 @@ class VideoDeepfakeDetector:
         self.xgb_path = xgb_path
         self.classifier = joblib.load(self.xgb_path)
 
-    def predict(self, video_path: str, image_model, audio_model) -> dict:
-        """Run multimodal inference on a video file."""
-        # 1. Visual features
-        frames = extract_frames_from_video(video_path, NUM_FRAMES)
+        self.quality_analyzer = InputQualityAnalyzer(config=self.config)
+        self.face_detector = FaceDetector(device=self.config.device)
+
+    def predict_structured(
+        self,
+        video_path: str,
+        image_model,
+        audio_model,
+        num_frames: int = 5
+    ) -> DetectorResult:
+        """
+        Run complete multimodal forensic analysis on a video file.
+        Returns standardized DetectorResult with temporal timelines and frame scores.
+        """
+        # 1. Video Decoding & Frame Sampling
+        frames, timestamps, meta = extract_frames_with_metadata(
+            video_path,
+            num_frames=num_frames,
+            max_scan_frames=self.config.max_scan_frames
+        )
+
         if len(frames) == 0:
             raise ValueError("Could not decode video or extract valid frames.")
 
+        # 2. Face Tracking & Frame Quality Assessment
+        face_track_res = self.face_detector.track_faces_across_frames(frames)
+        frame_qualities = [
+            self.quality_analyzer.analyze_image(f, face_boxes=[box] if box is not None else None)
+            for f, box in zip(frames, face_track_res["boxes_per_frame"])
+        ]
+
+        # 3. Audio Extraction & Demuxing
+        tmp_wav = extract_audio_from_video(video_path)
+        has_audio = (tmp_wav is not None)
+
+        quality_res = self.quality_analyzer.analyze_video(
+            video_metadata=meta,
+            frame_qualities=frame_qualities,
+            face_detection_rate=face_track_res["detection_rate"],
+            has_audio=has_audio
+        )
+
+        # 4. Frame Feature Extraction & Frame-Level Predictions
         frame_embeddings = []
+        frame_fake_probs = []
+        processed_face_frames = []
+
         for frame_rgb in frames:
-            emb = image_model.extract_features(frame_rgb)
+            # Crop face if available for frame analysis
+            crop_rgb, _, _ = self.face_detector.crop_primary_face(
+                frame_rgb,
+                target_size=self.config.image_input_size,
+                margin=self.config.face_crop_margin
+            )
+            processed_face_frames.append(crop_rgb)
+
+            # Feature embedding for fusion
+            emb = image_model.extract_features(crop_rgb)
             frame_embeddings.append(emb)
 
-        frame_embeddings = np.array(frame_embeddings)  # (5, 768)
+            # Frame level single-frame prediction
+            frame_pred = image_model.predict_structured(crop_rgb, apply_face_crop=False)
+            frame_fake_probs.append(frame_pred.probability_fake)
 
-        # Statistical pooling (mean, max, std)
+        frame_embeddings = np.array(frame_embeddings)  # (N, 768)
+
+        # Statistical Pooling (mean, max, std) -> (2304,)
         feat_mean = frame_embeddings.mean(axis=0)
         feat_max = frame_embeddings.max(axis=0)
         feat_std = frame_embeddings.std(axis=0)
-        video_vector = np.concatenate([feat_mean, feat_max, feat_std])  # (2304,)
+        video_vector = np.concatenate([feat_mean, feat_max, feat_std])
 
-        # 2. Audio features
-        tmp_wav = extract_audio_from_video(video_path)
-        has_audio = False
-        if tmp_wav is not None:
+        # 5. Acoustic Feature Extraction
+        audio_detector_result = None
+        if has_audio and tmp_wav is not None:
             try:
                 audio_vector = audio_model.extract_features(tmp_wav)
-                has_audio = True
+                audio_detector_result = audio_model.predict_structured(tmp_wav)
             except Exception:
-                audio_vector = np.zeros(AUDIO_FEAT_DIM, dtype=np.float32)
+                audio_vector = np.zeros(self.config.whisper_embedding_dim, dtype=np.float32)
             finally:
                 if os.path.exists(tmp_wav):
                     os.remove(tmp_wav)
         else:
-            audio_vector = np.zeros(AUDIO_FEAT_DIM, dtype=np.float32)
+            audio_vector = np.zeros(self.config.whisper_embedding_dim, dtype=np.float32)
 
-        # 3. Intermediate Feature Fusion
-        fused = np.concatenate([video_vector, audio_vector])  # (2816,)
+        # 6. Intermediate Fusion Classification
+        fused = np.concatenate([video_vector, audio_vector])
         fused_2d = fused.reshape(1, -1)
 
-        # 4. XGBoost Classification
         spoof_prob = float(self.classifier.predict_proba(fused_2d)[0, 1])
         real_prob = float(1.0 - spoof_prob)
 
-        is_fake = spoof_prob >= OPTIMAL_THRESHOLD
-        confidence = spoof_prob if is_fake else real_prob
-        label = "FAKE" if is_fake else "REAL"
-        detail_label = "Fake (Deepfake Video Detected)" if is_fake else "Real (Authentic Video)"
+        # 7. Temporal Consistency Analysis
+        frame_prob_mean = float(np.mean(frame_fake_probs))
+        frame_prob_std = float(np.std(frame_fake_probs))
+        frame_prob_max = float(np.max(frame_fake_probs))
 
-        return {
-            "prediction": label,
-            "detail_label": detail_label,
-            "is_fake": is_fake,
-            "confidence": confidence,
-            "fake_prob": spoof_prob,
-            "real_prob": real_prob,
-            "sampled_frames": frames,
+        suspicious_frames = []
+        for idx, (prob, ts) in enumerate(zip(frame_fake_probs, timestamps)):
+            if prob >= self.config.uncertainty_fake_boundary:
+                suspicious_frames.append({
+                    "frame_index": idx,
+                    "timestamp_sec": round(ts, 2),
+                    "fake_probability": round(prob, 4),
+                    "severity": "HIGH" if prob > 0.80 else "MEDIUM"
+                })
+
+        # When audio is missing, adjust fusion confidence with visual frame ensemble
+        if not has_audio:
+            # Weighted average between XGBoost and visual frame mean
+            adjusted_spoof_prob = 0.50 * spoof_prob + 0.50 * frame_prob_mean
+        else:
+            adjusted_spoof_prob = spoof_prob
+
+        # Decision & Reliability
+        is_fake = adjusted_spoof_prob >= self.config.video_decision_threshold
+        boundary_dist = abs(adjusted_spoof_prob - 0.50) * 2.0
+        confidence = float(np.clip(boundary_dist, 0.0, 1.0))
+
+        # Reliability considers video quality, face tracking consistency, and audio availability
+        reliability = float(np.clip(
+            0.50 * quality_res.quality_score +
+            0.25 * face_track_res["face_consistency_score"] +
+            0.25 * (1.0 if has_audio else 0.70),
+            0.0, 1.0
+        ))
+
+        # Three-Way Decision Logic
+        if quality_res.quality_level == QualityLevel.LOW and not quality_res.is_acceptable:
+            prediction = DecisionVerdict.UNCERTAIN
+            detail_label = "Uncertain (Severe Video Artifacts / Low Quality)"
+        elif self.config.uncertainty_real_boundary <= adjusted_spoof_prob <= self.config.uncertainty_fake_boundary:
+            prediction = DecisionVerdict.UNCERTAIN
+            detail_label = "Uncertain (Inconclusive Temporal Signatures)"
+        elif adjusted_spoof_prob >= self.config.video_decision_threshold:
+            prediction = DecisionVerdict.FAKE
+            detail_label = "Fake (Deepfake Manipulation Detected)"
+        else:
+            prediction = DecisionVerdict.REAL
+            detail_label = "Real (Authentic Video Stream)"
+
+        evidence = {
             "has_audio": has_audio,
+            "raw_fused_score": spoof_prob,
+            "adjusted_fake_prob": adjusted_spoof_prob,
+            "frame_timestamps": timestamps,
+            "frame_fake_probabilities": frame_fake_probs,
+            "frame_variance_std": frame_prob_std,
+            "suspicious_frames": suspicious_frames,
+            "face_tracking": face_track_res,
+            "sampled_frames_rgb": frames,
+            "processed_face_frames_rgb": processed_face_frames,
+            "audio_result": audio_detector_result.to_dict() if audio_detector_result else None,
+        }
+
+        return DetectorResult(
+            model="Multimodal Intermediate Fusion (CoAtNet + Whisper + XGBoost)",
+            modality="video",
+            prediction=prediction,
+            raw_score=spoof_prob,
+            probability_fake=adjusted_spoof_prob,
+            probability_real=1.0 - adjusted_spoof_prob,
+            confidence=confidence,
+            reliability=reliability,
+            quality=quality_res,
+            evidence=evidence,
+            detail_label=detail_label,
+        )
+
+    def predict(self, video_path: str, image_model, audio_model) -> dict:
+        """Legacy dictionary interface."""
+        res = self.predict_structured(video_path, image_model, audio_model, num_frames=self.config.default_num_frames)
+        return {
+            "prediction": res.prediction.value,
+            "detail_label": res.detail_label,
+            "is_fake": (res.prediction == DecisionVerdict.FAKE),
+            "confidence": res.confidence,
+            "reliability": res.reliability,
+            "fake_prob": res.probability_fake,
+            "real_prob": res.probability_real,
+            "sampled_frames": res.evidence.get("sampled_frames_rgb"),
+            "has_audio": res.evidence.get("has_audio"),
+            "suspicious_frames": res.evidence.get("suspicious_frames"),
+            "quality": res.quality.to_dict(),
         }

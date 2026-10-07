@@ -1,3 +1,9 @@
+"""
+FakeProbe-X: Reliability-Aware Multimodal Deepfake Forensics System.
+Streamlit Web Interface providing multi-modal forensic inspection, reliability estimation,
+and explainable forensic audit reporting.
+"""
+
 import os
 import sys
 import time
@@ -16,21 +22,23 @@ from deepfake_detector_core import (
     ImageDeepfakeDetector,
     AudioDeepfakeDetector,
     VideoDeepfakeDetector,
+    AdaptiveEvidenceFusionEngine,
+    ForensicReportGenerator,
+    DecisionVerdict,
+    QualityLevel,
+    ReliabilityLevel,
     transcode_for_browser,
-    get_image_model_path,
-    get_audio_model_path,
-    get_video_model_path,
 )
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="Deepfake Detection System",
+    page_title="FakeProbe-X Forensics",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# 2. Styling (Clean, responsive, modern)
+# 2. Custom Modern Styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -65,22 +73,26 @@ st.markdown("""
         font-weight: 400;
     }
     
-    .result-container {
+    .verdict-box {
         padding: 1.5rem;
         border-radius: 12px;
-        margin-top: 1.2rem;
+        margin-top: 1.0rem;
         margin-bottom: 1.2rem;
         border-left: 6px solid;
         background-color: rgba(128, 128, 128, 0.07);
         box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
     
-    .result-real {
+    .verdict-real {
         border-left-color: #10b981;
     }
     
-    .result-fake {
+    .verdict-fake {
         border-left-color: #ef4444;
+    }
+
+    .verdict-uncertain {
+        border-left-color: #f59e0b;
     }
     
     .badge-real {
@@ -104,364 +116,289 @@ st.markdown("""
         display: inline-block;
         box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
-    
-    .stat-card {
-        background: rgba(128, 128, 128, 0.05);
-        border: 1px solid rgba(128, 128, 128, 0.15);
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
+
+    .badge-uncertain {
+        background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        color: white;
+        padding: 0.45rem 1.2rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 1.35rem;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
     }
 </style>
 """, unsafe_allow_html=True)
 
 
-# 3. Model Loading & Cache
-@st.cache_resource(show_spinner=False)
-def load_all_detectors():
-    """Load and cache trained models once at startup."""
+# 3. Cached Resource Loading
+@st.cache_resource(show_spinner="Initializing FakeProbe-X Neural Forensics...")
+def load_forensic_suite():
     img_det = ImageDeepfakeDetector()
     aud_det = AudioDeepfakeDetector()
     vid_det = VideoDeepfakeDetector()
-    return img_det, aud_det, vid_det
+    fusion = AdaptiveEvidenceFusionEngine()
+    return img_det, aud_det, vid_det, fusion
 
 
-# Header
+try:
+    image_detector, audio_detector, video_detector, fusion_engine = load_forensic_suite()
+    system_ready = True
+except Exception as e:
+    st.error(f"❌ Failed to load forensic models: {e}")
+    system_ready = False
+
+
+# 4. Header
 st.markdown("""
 <div class="main-header">
-    <div class="main-title">
-        <span>🛡️</span> Deepfake Detection System
-    </div>
-    <div class="subtitle">
-        Integrated Multimodal Media Forensics — Powered by CoAtNet 5-Channel, Whisper-Base, and Intermediate Feature Fusion
-    </div>
+    <div class="main-title">🛡️ FakeProbe-X</div>
+    <div class="subtitle">Reliability-Aware Multimodal Deepfake Forensics System</div>
 </div>
 """, unsafe_allow_html=True)
 
 
-# Initialize Models
-with st.spinner("Initializing Deepfake Forensic Models... Please wait."):
-    try:
-        image_detector, audio_detector, video_detector = load_all_detectors()
-        models_ready = True
-    except Exception as e:
-        models_ready = False
-        st.error(f"Error loading models: {e}")
-
-# Sidebar
+# 5. Sidebar System Diagnostics
 with st.sidebar:
-    st.markdown("### ⚙️ System Status")
-    img_p = get_image_model_path()
-    aud_p = get_audio_model_path()
-    vid_p = get_video_model_path()
+    st.header("⚙️ Forensic Engine")
+    st.caption("Active Target Branch: `deepfake-integration`")
+    st.divider()
 
-    st.write(f"🖼️ **Image Model:** {'✅ Ready' if img_p else '❌ Missing'}")
-    st.write(f"🎙️ **Audio Model:** {'✅ Ready' if aud_p else '❌ Missing'}")
-    st.write(f"🎥 **Video Model:** {'✅ Ready' if vid_p else '❌ Missing'}")
-    
-    st.markdown("---")
-    st.markdown("### 🔬 Detection Technology")
-    st.caption("**Image Engine:** CoAtNet-0 (RGB + ELA + FFT 5-Channel)")
-    st.caption("**Audio Engine:** Whisper-Base + XGBoost (ASVspoof)")
-    st.caption("**Video Engine:** Intermediate Multimodal Fusion (2816-dim)")
-    
-    st.markdown("---")
-    st.caption("Deepfake Detection Unified Platform v1.0")
+    st.subheader("Model Status")
+    st.write("🖼️ **Image Model**: CoAtNet-0 (5-Ch 224px)")
+    st.write("🎙️ **Audio Model**: Whisper-Base + XGBoost")
+    st.write("🎥 **Video Model**: Multimodal XGBoost (2816-dim)")
+    st.write("🧠 **Decision Engine**: Reliability-Aware 3-Way")
 
-
-if not models_ready:
-    st.stop()
+    st.divider()
+    st.subheader("Threshold Calibration")
+    st.write("• Real Bound: `< 0.420`")
+    st.write("• Deadband (Uncertain): `0.420 - 0.580`")
+    st.write("• Fake Bound: `> 0.580`")
+    st.write("• Min Reliability: `0.350`")
 
 
-# Main Navigation Tabs
-tab_image, tab_video, tab_audio, tab_info = st.tabs([
-    "🖼️ Image Detection",
-    "🎥 Video Detection",
-    "🎙️ Audio Detection",
-    "ℹ️ System & Models",
-])
+# 6. Tabbed User Interface
+tab_image, tab_video, tab_audio = st.tabs(["🖼️ Image Forensics", "🎥 Video Forensics", "🎙️ Audio Forensics"])
 
 
-# ==============================================================================
-# TAB 1: IMAGE DETECTION
-# ==============================================================================
+def display_verdict_card(report):
+    """Render unified verdict banner with quality, reliability, and confidence."""
+    verdict = report.final_verdict.value
+    css_class = "verdict-fake" if verdict == "FAKE" else ("verdict-real" if verdict == "REAL" else "verdict-uncertain")
+    badge_class = "badge-fake" if verdict == "FAKE" else ("badge-real" if verdict == "REAL" else "badge-uncertain")
+    icon = "🚨" if verdict == "FAKE" else ("✅" if verdict == "REAL" else "⚠️")
+
+    st.markdown(f"""
+    <div class="verdict-box {css_class}">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+            <span class="{badge_class}">{icon} {verdict}</span>
+            <span style="font-size: 1.1rem; font-weight: 600; color: #64748b;">
+                Confidence: <strong style="color: #0f172a;">{report.confidence*100:.1f}%</strong>
+            </span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div>
+                <small style="color: #64748b;">Forensic Reliability</small><br>
+                <strong>{report.reliability_level.value} ({report.reliability:.2f})</strong>
+            </div>
+            <div>
+                <small style="color: #64748b;">Input Signal Quality</small><br>
+                <strong>{report.quality.quality_level.value} ({report.quality.quality_score:.2f})</strong>
+            </div>
+            <div>
+                <small style="color: #64748b;">Uncertainty Metric</small><br>
+                <strong>{report.uncertainty_score:.2f} / 1.00</strong>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ==========================================
+# TAB 1: IMAGE FORENSICS
+# ==========================================
 with tab_image:
-    st.subheader("Image Deepfake Detection")
-    st.write("Upload a portrait, photograph, or facial image to analyze pixel forensics and frequency artifacts.")
-    
-    uploaded_image = st.file_uploader(
-        "Upload Image (JPG, PNG, JPEG, WEBP)",
-        type=["jpg", "png", "jpeg", "webp"],
-        key="uploader_image"
+    st.markdown("### Image Deepfake & Forensic Analysis")
+    st.write("Upload a portrait photo to evaluate spatial artifacts, Error Level Analysis (ELA), and 2D Fourier spectra.")
+
+    uploaded_img = st.file_uploader(
+        "Choose an image file",
+        type=["jpg", "jpeg", "png", "webp"],
+        key="image_uploader"
     )
-    
-    if uploaded_image is not None:
-        col_img_left, col_img_right = st.columns([1, 1], gap="large")
-        
-        with col_img_left:
-            st.markdown("#### Input Preview")
-            pil_img = Image.open(uploaded_image).convert("RGB")
-            st.image(pil_img, caption=f"{uploaded_image.name} ({pil_img.width}x{pil_img.height})", use_container_width=True)
-            
-        with col_img_right:
-            st.markdown("#### Forensic Analysis")
-            if st.button("🔍 Analyze Image", type="primary", use_container_width=True, key="btn_img"):
-                with st.status("Executing Image Forensics...", expanded=True) as status:
-                    st.write("Extracting Error Level Analysis (ELA) compression map...")
-                    time.sleep(0.3)
-                    st.write("Computing Fast Fourier Transform (FFT) 2D frequency spectrum...")
-                    time.sleep(0.3)
-                    st.write("Executing CoAtNet 5-Channel neural network inference...")
-                    
-                    uploaded_image.seek(0)
-                    img_bytes = uploaded_image.read()
-                    res = image_detector.predict(img_bytes)
-                    status.update(label="Analysis Complete", state="complete", expanded=False)
-                
-                # Render Result
-                card_class = "result-fake" if res["is_fake"] else "result-real"
-                badge_class = "badge-fake" if res["is_fake"] else "badge-real"
-                icon = "⚠️" if res["is_fake"] else "✅"
-                
-                st.markdown(f"""
-                <div class="result-container {card_class}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                        <span class="{badge_class}">{icon} {res['prediction']}</span>
-                        <span style="font-size: 1.4rem; font-weight: 700;">Confidence: {res['confidence']*100:.2f}%</span>
-                    </div>
-                    <p style="margin: 0; font-weight: 600; opacity: 0.85;">{res['detail_label']}</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Probabilities
+
+    if uploaded_img is not None and system_ready:
+        col_in1, col_in2 = st.columns([1, 1])
+        img_bytes = uploaded_img.read()
+        pil_view = Image.open(uploaded_img)
+
+        with col_in1:
+            st.image(pil_view, caption=f"Uploaded: {uploaded_img.name}", use_container_width=True)
+
+        with col_in2:
+            if st.button("🚀 Analyze Image", key="btn_img_analyze", type="primary"):
+                with st.spinner("Executing CoAtNet-5ch, ELA, and Fourier Analysis..."):
+                    t0 = time.time()
+                    detector_res = image_detector.predict_structured(img_bytes, apply_face_crop=True)
+                    report = fusion_engine.fuse_image_evidence(detector_res, sample_name=uploaded_img.name)
+                    elapsed = time.time() - t0
+
+                # Display Results
+                display_verdict_card(report)
+
+                # Probabilities & Details
                 col_p1, col_p2 = st.columns(2)
-                with col_p1:
-                    st.metric("Authentic (Real) Score", f"{res['real_prob']*100:.2f}%")
-                with col_p2:
-                    st.metric("Manipulated (Fake) Score", f"{res['fake_prob']*100:.2f}%")
-                    
-                st.progress(res["real_prob"], text=f"Authenticity Probability: {res['real_prob']*100:.2f}%")
-                
-                # Forensic Artifact Inspection
-                with st.expander("🔬 View Extracted Forensic Maps (ELA & FFT)"):
-                    f_col1, f_col2 = st.columns(2)
-                    with f_col1:
-                        st.markdown("**Error Level Analysis (ELA)**")
-                        st.image(res["ela_map"], caption="JPEG compression anomaly map", clamp=True, use_container_width=True)
-                    with f_col2:
-                        st.markdown("**FFT 2D Power Spectrum**")
-                        st.image(res["fft_map"], caption="High-frequency generative artifacts", clamp=True, use_container_width=True)
+                col_p1.metric("Fake Probability", f"{report.final_fake_probability*100:.1f}%")
+                col_p2.metric("Real Probability", f"{report.final_real_probability*100:.1f}%")
+
+                st.progress(report.final_fake_probability)
+
+                # Evidence & Explanations
+                st.subheader("🔍 Forensic Evidence & Reasoning")
+                for reason in report.reasons:
+                    st.write(f"• {reason}")
+
+                # Visual Artifacts (ELA & FFT)
+                st.subheader("🔬 Forensic Visualizations")
+                col_v1, col_v2 = st.columns(2)
+                if report.visual_artifacts.get("ela_map") is not None:
+                    col_v1.image(report.visual_artifacts["ela_map"], caption="Error Level Analysis (ELA)", clamp=True, use_container_width=True)
+                if report.visual_artifacts.get("fft_map") is not None:
+                    col_v2.image(report.visual_artifacts["fft_map"], caption="2D Fast Fourier Transform (FFT) Magnitude", clamp=True, use_container_width=True)
+
+                # Download Forensic Report
+                md_report = ForensicReportGenerator.generate_markdown_report(report)
+                st.download_button(
+                    "📄 Download Forensic Audit Certificate (.md)",
+                    data=md_report,
+                    file_name=f"FakeProbeX_Report_{uploaded_img.name}.md",
+                    mime="text/markdown"
+                )
 
 
-# ==============================================================================
-# TAB 2: VIDEO DETECTION
-# ==============================================================================
+# ==========================================
+# TAB 2: VIDEO FORENSICS
+# ==========================================
 with tab_video:
-    st.subheader("Video Deepfake Detection")
-    st.write("Upload a video to perform multimodal intermediate fusion analysis across temporal frames and acoustic tracks.")
-    
-    uploaded_video = st.file_uploader(
-        "Upload Video (MP4, AVI, MOV, MKV)",
-        type=["mp4", "avi", "mov", "mkv"],
-        key="uploader_video"
-    )
-    
-    if uploaded_video is not None:
-        # Save temp video for inference and preview
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_video.name)[1]) as tmp_v:
-            tmp_v.write(uploaded_video.getbuffer())
-            temp_video_path = tmp_v.name
+    st.markdown("### Video Multimodal Deepfake Forensics")
+    st.write("Inspect video sequences with multi-frame temporal consistency, face tracking, and acoustic speech spoofing.")
 
-        preview_path = transcode_for_browser(temp_video_path)
-        
-        col_vid_left, col_vid_right = st.columns([1, 1], gap="large")
-        
-        with col_vid_left:
-            st.markdown("#### Video Preview")
-            if preview_path and os.path.exists(preview_path):
-                st.video(preview_path)
-            else:
-                st.video(uploaded_video)
-                
-        with col_vid_right:
-            st.markdown("#### Multimodal Forensic Analysis")
-            if st.button("🎥 Analyze Video", type="primary", use_container_width=True, key="btn_vid"):
-                try:
-                    with st.status("Executing Multimodal Forensic Pipeline...", expanded=True) as status:
-                        st.write("Sampling temporal frames across video duration...")
-                        time.sleep(0.3)
-                        st.write("Extracting 5-Channel CoAtNet visual embeddings (RGB + ELA + FFT)...")
-                        time.sleep(0.3)
-                        st.write("Applying statistical pooling (mean + max + std -> 2304-dim)...")
-                        time.sleep(0.3)
-                        st.write("Demuxing audio track & extracting Whisper acoustic embeddings...")
-                        time.sleep(0.3)
-                        st.write("Fusing visual & acoustic feature vectors (2816-dim)...")
-                        time.sleep(0.3)
-                        st.write("Running trained XGBoost fusion classifier...")
-                        
-                        res = video_detector.predict(
-                            video_path=temp_video_path,
-                            image_model=image_detector,
-                            audio_model=audio_detector,
+    uploaded_vid = st.file_uploader(
+        "Choose a video file",
+        type=["mp4", "avi", "mov", "mkv", "webm"],
+        key="video_uploader"
+    )
+
+    if uploaded_vid is not None and system_ready:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
+            tmp.write(uploaded_vid.read())
+            tmp_video_path = tmp.name
+
+        try:
+            col_v1, col_v2 = st.columns([1, 1])
+            with col_v1:
+                st.video(tmp_video_path)
+
+            with col_v2:
+                num_frames = st.slider("Sampled Frame Count", min_value=3, max_value=10, value=5)
+                if st.button("🚀 Analyze Video Stream", key="btn_vid_analyze", type="primary"):
+                    with st.spinner("Decoding video, sampling frames, and evaluating multimodal fusion..."):
+                        t0 = time.time()
+                        detector_res = video_detector.predict_structured(
+                            tmp_video_path,
+                            image_detector,
+                            audio_detector,
+                            num_frames=num_frames
                         )
-                        status.update(label="Analysis Complete", state="complete", expanded=False)
-                    
-                    # Render Result
-                    card_class = "result-fake" if res["is_fake"] else "result-real"
-                    badge_class = "badge-fake" if res["is_fake"] else "badge-real"
-                    icon = "⚠️" if res["is_fake"] else "✅"
-                    
-                    st.markdown(f"""
-                    <div class="result-container {card_class}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                            <span class="{badge_class}">{icon} {res['prediction']}</span>
-                            <span style="font-size: 1.4rem; font-weight: 700;">Confidence: {res['confidence']*100:.2f}%</span>
-                        </div>
-                        <p style="margin: 0; font-weight: 600; opacity: 0.85;">{res['detail_label']}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
+                        report = fusion_engine.fuse_video_evidence(detector_res, sample_name=uploaded_vid.name)
+                        elapsed = time.time() - t0
+
+                    display_verdict_card(report)
+
                     col_vp1, col_vp2 = st.columns(2)
-                    with col_vp1:
-                        st.metric("Authentic (Real) Score", f"{res['real_prob']*100:.2f}%")
-                    with col_vp2:
-                        st.metric("Deepfake (Fake) Score", f"{res['fake_prob']*100:.2f}%")
-                        
-                    st.progress(res["real_prob"], text=f"Authenticity Probability: {res['real_prob']*100:.2f}%")
-                    
-                    if res.get("has_audio"):
-                        st.info("🔊 Audio track detected and fused into multimodal prediction.")
-                    else:
-                        st.warning("🔇 No audio track found in video; visual features evaluated with zero-padded acoustic vector.")
-                    
-                    if len(res.get("sampled_frames", [])) > 0:
-                        st.markdown("#### Sampled Video Frames")
-                        frame_cols = st.columns(len(res["sampled_frames"]))
-                        for i, f_img in enumerate(res["sampled_frames"]):
-                            with frame_cols[i]:
-                                st.image(f_img, caption=f"Frame #{i+1}", use_container_width=True)
-                
-                finally:
-                    if os.path.exists(temp_video_path):
-                        try:
-                            os.remove(temp_video_path)
-                        except Exception:
-                            pass
-                    if preview_path and os.path.exists(preview_path):
-                        try:
-                            os.remove(preview_path)
-                        except Exception:
-                            pass
+                    col_vp1.metric("Multimodal Fake Probability", f"{report.final_fake_probability*100:.1f}%")
+                    col_vp2.metric("Authentic Real Probability", f"{report.final_real_probability*100:.1f}%")
+
+                    st.progress(report.final_fake_probability)
+
+                    st.subheader("🔍 Forensic Evidence & Findings")
+                    for reason in report.reasons:
+                        st.write(f"• {reason}")
+
+                    # Suspicious Timestamps
+                    suspicious_frames = report.visual_artifacts.get("suspicious_frames", [])
+                    if len(suspicious_frames) > 0:
+                        st.subheader("⏱️ Suspicious Timestamps")
+                        for sf in suspicious_frames:
+                            st.warning(f"⚠️ Timestamp **{sf['timestamp_sec']}s** (Frame {sf['frame_index']}): Fake Prob **{sf['fake_probability']*100:.1f}%** ({sf['severity']} anomaly)")
+
+                    # Frame Sample Gallery
+                    sampled_frames = report.visual_artifacts.get("sampled_frames_rgb", [])
+                    if len(sampled_frames) > 0:
+                        st.subheader("🖼️ Sampled Temporal Frames")
+                        st.image(sampled_frames, width=120)
+
+                    md_report = ForensicReportGenerator.generate_markdown_report(report)
+                    st.download_button(
+                        "📄 Download Forensic Audit Certificate (.md)",
+                        data=md_report,
+                        file_name=f"FakeProbeX_Report_{uploaded_vid.name}.md",
+                        mime="text/markdown"
+                    )
+
+        finally:
+            if os.path.exists(tmp_video_path):
+                try:
+                    os.remove(tmp_video_path)
+                except Exception:
+                    pass
 
 
-# ==============================================================================
-# TAB 3: AUDIO DETECTION
-# ==============================================================================
+# ==========================================
+# TAB 3: AUDIO FORENSICS
+# ==========================================
 with tab_audio:
-    st.subheader("Audio Deepfake & Voice Clone Detection")
-    st.write("Upload an audio recording to detect AI voice cloning, Text-to-Speech (TTS), or speech synthesis spoofs.")
-    
-    uploaded_audio = st.file_uploader(
-        "Upload Audio (WAV, MP3, FLAC, OGG)",
-        type=["wav", "mp3", "flac", "ogg"],
-        key="uploader_audio"
+    st.markdown("### Audio & Voice Cloning Forensics")
+    st.write("Detect AI-generated speech, voice conversions, and neural vocoder artifacts via Whisper-Base + XGBoost.")
+
+    uploaded_aud = st.file_uploader(
+        "Choose an audio file",
+        type=["wav", "mp3", "flac", "ogg", "m4a"],
+        key="audio_uploader"
     )
-    
-    if uploaded_audio is not None:
-        col_aud_left, col_aud_right = st.columns([1, 1], gap="large")
-        
-        with col_aud_left:
-            st.markdown("#### Audio Playback")
-            st.audio(uploaded_audio)
-            
-        with col_aud_right:
-            st.markdown("#### Acoustic Forensic Analysis")
-            if st.button("🎙️ Analyze Audio", type="primary", use_container_width=True, key="btn_aud"):
-                with st.status("Executing Acoustic Pipeline...", expanded=True) as status:
-                    st.write("Extracting 16kHz audio waveform...")
-                    time.sleep(0.3)
-                    st.write("Generating Whisper-Base encoder temporal embeddings (512-dim)...")
-                    time.sleep(0.3)
-                    st.write("Classifying acoustic features via ASVspoof XGBoost model...")
-                    
-                    uploaded_audio.seek(0)
-                    aud_bytes = uploaded_audio.read()
-                    res = audio_detector.predict(aud_bytes, suffix=os.path.splitext(uploaded_audio.name)[1])
-                    status.update(label="Analysis Complete", state="complete", expanded=False)
-                    
-                # Render Result
-                card_class = "result-fake" if res["is_fake"] else "result-real"
-                badge_class = "badge-fake" if res["is_fake"] else "badge-real"
-                icon = "⚠️" if res["is_fake"] else "✅"
-                
-                st.markdown(f"""
-                <div class="result-container {card_class}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                        <span class="{badge_class}">{icon} {res['prediction']}</span>
-                        <span style="font-size: 1.4rem; font-weight: 700;">Confidence: {res['confidence']*100:.2f}%</span>
-                    </div>
-                    <p style="margin: 0; font-weight: 600; opacity: 0.85;">{res['detail_label']}</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
+
+    if uploaded_aud is not None and system_ready:
+        col_a1, col_a2 = st.columns([1, 1])
+        aud_bytes = uploaded_aud.read()
+
+        with col_a1:
+            st.audio(aud_bytes)
+
+        with col_a2:
+            if st.button("🚀 Analyze Audio Track", key="btn_aud_analyze", type="primary"):
+                with st.spinner("Extracting Whisper-Base acoustic embeddings and evaluating ASVspoof classifier..."):
+                    t0 = time.time()
+                    detector_res = audio_detector.predict_structured(aud_bytes, suffix=".wav")
+                    report = fusion_engine.fuse_audio_evidence(detector_res, sample_name=uploaded_aud.name)
+                    elapsed = time.time() - t0
+
+                display_verdict_card(report)
+
                 col_ap1, col_ap2 = st.columns(2)
-                with col_ap1:
-                    st.metric("Bonafide (Human) Score", f"{res['real_prob']*100:.2f}%")
-                with col_ap2:
-                    st.metric("Spoof (AI Voice) Score", f"{res['fake_prob']*100:.2f}%")
-                    
-                st.progress(res["real_prob"], text=f"Human Voice Probability: {res['real_prob']*100:.2f}%")
+                col_ap1.metric("Voice Spoof Probability", f"{report.final_fake_probability*100:.1f}%")
+                col_ap2.metric("Bonafide Real Probability", f"{report.final_real_probability*100:.1f}%")
 
+                st.progress(report.final_fake_probability)
 
-# ==============================================================================
-# TAB 4: SYSTEM & MODEL INFO
-# ==============================================================================
-with tab_info:
-    st.subheader("Deepfake Detection Integration Architecture")
-    st.markdown("""
-    This unified platform integrates all three existing repositories into a coherent, high-performance forensic application without retraining or placeholder mocks.
-    """)
-    
-    col_i1, col_i2, col_i3 = st.columns(3)
-    
-    with col_i1:
-        st.markdown("""
-        <div class="stat-card">
-            <h4>🖼️ Image Detector</h4>
-            <p><strong>Architecture:</strong> CoAtNet-0 5-Channel</p>
-            <p><strong>Input:</strong> RGB (3ch) + ELA (1ch) + FFT (1ch)</p>
-            <p><strong>Trained Weights:</strong> <code>best_coatnet_5ch.pth</code></p>
-            <p><strong>Size:</strong> 106.8 MB</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_i2:
-        st.markdown("""
-        <div class="stat-card">
-            <h4>🎙️ Audio Detector</h4>
-            <p><strong>Architecture:</strong> Whisper-Base + XGBoost</p>
-            <p><strong>Embedding:</strong> 512-dim mean-pooled</p>
-            <p><strong>Trained Weights:</strong> <code>xgboost_asvspoof_model.joblib</code></p>
-            <p><strong>Benchmark:</strong> ASVspoof dataset</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_i3:
-        st.markdown("""
-        <div class="stat-card">
-            <h4>🎥 Video Detector</h4>
-            <p><strong>Architecture:</strong> Intermediate Multimodal Fusion</p>
-            <p><strong>Vector:</strong> 2304d (Visual) + 512d (Audio) = 2816d</p>
-            <p><strong>Trained Weights:</strong> <code>xgboost_fusion_model.joblib</code></p>
-            <p><strong>Threshold:</strong> 0.5780 (Balanced Eval)</p>
-        </div>
-        """, unsafe_allow_html=True)
+                st.subheader("🔍 Acoustic Evidence & Findings")
+                for reason in report.reasons:
+                    st.write(f"• {reason}")
 
-    st.markdown("---")
-    st.markdown("### 📋 Integration & Missing Checkpoints Transparency Report")
-    st.markdown("""
-    - **Project 1 (`AI-DeepfakeDetector-main`):** Provided the fully trained weights for 5-channel CoAtNet-0, Whisper+XGBoost audio classifier, and the multimodal fusion XGBoost model. Reused in full.
-    - **Project 2 (`multimodal-deepfake-detector-master`):** Provided EfficientNet/MTCNN architecture definitions and dataset evaluation pipeline. Notice: It was published without a bundled `.pth` model checkpoint file (used runtime weight inputs). The unified application prioritizes the pre-trained 5-channel CoAtNet model.
-    - **Project 3 (`Awesome-Comprehensive-Deepfake-Detection-main`):** Comprehensive research taxonomy, literature collection, and benchmarks.
-    """)
+                md_report = ForensicReportGenerator.generate_markdown_report(report)
+                st.download_button(
+                    "📄 Download Forensic Audit Certificate (.md)",
+                    data=md_report,
+                    file_name=f"FakeProbeX_Report_{uploaded_aud.name}.md",
+                    mime="text/markdown"
+                )
