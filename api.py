@@ -5,8 +5,12 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 
+from pydantic import BaseModel
+
+import chat_agent
 import engines
 from engines import EngineUnavailable
+import presenter
 from presenter import present
 
 # No model is loaded at startup: the API always starts, and demo mode works with no weights.
@@ -125,6 +129,17 @@ def analyze_media(file: UploadFile = File(...), engine: str = Query("demo")):
         # Always clean up the temporary file
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+class ChatRequest(BaseModel):
+    question: str
+    result: dict
+
+
+@app.post("/api/v1/chat")
+def chat(req: ChatRequest):
+    """Answers only from the supplied result JSON (rule-based; optional Ollama rewording)."""
+    return chat_agent.answer(req.question, req.result)
+
 
 @app.get("/api/v1/artifacts/{uid}/{filename}")
 async def get_artifact(uid: str, filename: str):
