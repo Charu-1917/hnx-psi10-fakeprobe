@@ -42,3 +42,6 @@ tests/syncnet_work/
 *.png
 node_modules/
 dist/
+
+models/
+.venv/
