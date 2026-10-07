@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse, FileResponse
 
 import engines
 from engines import EngineUnavailable
+from presenter import present
 
 # No model is loaded at startup: the API always starts, and demo mode works with no weights.
 app = FastAPI(title="ORCA Forensics API")
@@ -25,6 +26,23 @@ DEMO_HINT = "Use engine=demo (or GET /api/v1/demo/{video|image|audio}) to run th
 
 def _unavailable(e: Exception) -> HTTPException:
     return HTTPException(status_code=503, detail={"message": str(e), "run_demo_instead": True, "hint": DEMO_HINT})
+
+
+def _media_size(path: str, media_type: str):
+    """Real width/height of an uploaded image/video (used to place boxes). None if unreadable."""
+    if media_type == "audio":
+        return None
+    try:
+        import cv2
+        if media_type == "image":
+            img = cv2.imread(path)
+            return {"w": int(img.shape[1]), "h": int(img.shape[0])} if img is not None else None
+        cap = cv2.VideoCapture(path)
+        size = {"w": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), "h": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))}
+        cap.release()
+        return size if size["w"] and size["h"] else None
+    except Exception:
+        return None
 
 
 @app.get("/api/v1/health")
@@ -74,12 +92,11 @@ def analyze_media(file: UploadFile = File(...), engine: str = Query("demo")):
 
         if engine == "fast":
             result = engines.run_fast(temp_path, media_type, sample_name=file.filename)
-            result["engine"] = "fast"
-            result["media_type"] = media_type
-            return JSONResponse(content=result)
+            return JSONResponse(content=present(result, media_type, "fast"))
 
         # engine == "deep": existing orchestrator, created lazily on first use
         result = engines.run_deep(temp_path)
+        frame_size = _media_size(temp_path, media_type)
 
         # Rewrite absolute artifact paths to API URLs
         vis_ev = result.get("visual_evidence", {})
@@ -95,9 +112,7 @@ def analyze_media(file: UploadFile = File(...), engine: str = Query("demo")):
                         filename = parts[1]
                         vis_ev[key] = f"/api/v1/artifacts/{uid}/{filename}"
 
-        result["engine"] = "deep"
-        result["media_type"] = media_type
-        return JSONResponse(content=result)
+        return JSONResponse(content=present(result, media_type, "deep", frame_size=frame_size))
 
     except EngineUnavailable as e:
         raise _unavailable(e)

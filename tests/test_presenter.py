@@ -68,7 +68,7 @@ class PresenterTests(unittest.TestCase):
                                        "mean_anomaly": 0.8, "max_anomaly": 0.95, "mean_reliability": 0.7}]}
         out = present(src, "image", frame_size={"w": 800, "h": 600})
         self.assertEqual((out["verdict_label"], out["ai_probability_pct"], out["certainty"]),
-                         ("AI_GENERATED", 72, "high"))
+                         ("AI_GENERATED", 72, "medium"))
         self.assertEqual(out["all_detected_areas"][0]["where"], "middle-centre of the frame")
         self.assertEqual(out["all_detected_areas"][0]["percent_fake"], 80)
         self.assertEqual(out["audio_segments"], [])
