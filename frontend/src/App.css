@@ -41,3 +41,15 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:4px 6px;b
 .heat{max-width:100%;border-radius:8px;margin-top:8px}
 svg text{fill:#8fa0bd;font-size:10px}
 @media(max-width:600px){main{padding:8px}.big{font-size:24px}.mod{grid-template-columns:90px 1fr 40px}}
+main>*{min-width:0}
+img.preview{max-width:100%;max-height:260px;border-radius:8px;display:block;margin:8px 0}
+.scroll{overflow-x:auto}
+pre{max-width:100%}
+.notice{margin:8px 0;padding:10px 12px;border:1px solid var(--warn);border-radius:10px;background:rgba(255,184,77,.08)}
+.busy{display:flex;gap:10px;align-items:center;margin:8px 0;color:var(--mu)}
+.spinner{width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+button.chip{background:transparent;font-weight:400;padding:6px 12px;font-size:13px;text-align:left}
+footer{max-width:880px;margin:0 auto;padding:6px 14px 30px;text-align:center;color:var(--mu);font-size:12px}
+.err button{flex:none}
+@media(max-width:600px){header{padding:10px 12px}header h1{font-size:18px}.card{padding:14px}.pct{font-size:28px}button{padding:9px 12px}.drop{min-width:0;padding:16px}}

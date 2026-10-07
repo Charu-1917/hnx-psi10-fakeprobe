@@ -102,8 +102,41 @@ def build_video():
     return out
 
 
-def build_image():
+def _no_sync():
+    return {"offset_frames": None, "offset_ms": None, "confidence": None, "reliable": None}
+
+
+def _no_maps():
+    return {"anomaly_map_path": None, "reliability_map_path": None}
+
+
+def _no_times():
+    return {"visual_time_ms": None, "audio_time_ms": None, "sync_time_ms": None, "total_time_ms": None}
+
+
+def build_image(variant="ai"):
     fw, fh = 800, 600
+    if variant == "real":
+        score = .09
+        return {
+            "demo": True, "sample_data": True, "variant": "real",
+            "provenance": "Fully synthetic illustration of a result for a REAL photo. No image was analysed.",
+            "media_type": "image", "engine": "demo",
+            "verdict_label": verdict(score), "ai_probability_pct": round(score * 100), "certainty": certainty(score),
+            "reasons": [{"signal": "visual", "severity": "ok",
+                         "text": "Picture: no area of the image looks edited or generated."},
+                        {"signal": "quality", "severity": "ok",
+                         "text": "The picture is sharp and well lit, so this result is reliable."}],
+            "timeline": [],
+            "frame_regions": [{"timestamp_sec": None, "frame_index": None, "score": score, "regions": []}],
+            "audio_segments": [], "all_detected_areas": [], "frame_size": {"w": fw, "h": fh},
+            "manipulation_score": score, "decision": decision(score),
+            "modalities": {"visual_score": score, "audio_score": None, "sync_desync_score": None},
+            "sync_evidence": _no_sync(), "visual_evidence": _no_maps(),
+            "evidence": ["Sample result. Visual analysis identified no significant anomalous regions.",
+                         f"The final fusion result is {decision(score)}."],
+            "suspicious_regions": [], "suspicious_timeline": [], "processing": _no_times(),
+        }
     regs = [{"x": 300, "y": 140, "w": 200, "h": 260, "mean": .78, "max": .95, "rel": .84},
             {"x": 40, "y": 30, "w": 120, "h": 90, "mean": .52, "max": .70, "rel": .70}]
     score = .82
@@ -111,8 +144,8 @@ def build_image():
               "what": what(r["w"], r["h"], r["x"], fw, fh), "percent_fake": round(r["mean"] * 100),
               "label": label(r["mean"])} for i, r in enumerate(regs)]
     return {
-        "demo": True, "sample_data": True,
-        "provenance": "Fully synthetic illustration. No image was analysed.",
+        "demo": True, "sample_data": True, "variant": "ai",
+        "provenance": "Fully synthetic illustration of a result for an AI-made photo. No image was analysed.",
         "media_type": "image", "engine": "demo",
         "verdict_label": verdict(score), "ai_probability_pct": round(score * 100), "certainty": certainty(score),
         "reasons": [{"signal": "visual", "severity": "bad",
@@ -123,20 +156,38 @@ def build_image():
         "audio_segments": [], "all_detected_areas": areas, "frame_size": {"w": fw, "h": fh},
         "manipulation_score": score, "decision": decision(score),
         "modalities": {"visual_score": score, "audio_score": None, "sync_desync_score": None},
-        "sync_evidence": {"offset_frames": None, "offset_ms": None, "confidence": None, "reliable": None},
-        "visual_evidence": {"anomaly_map_path": None, "reliability_map_path": None},
+        "sync_evidence": _no_sync(), "visual_evidence": _no_maps(),
         "evidence": ["Sample result. Visual analysis identified 2 anomalous region(s).",
                      f"The final fusion result is {decision(score)}."],
         "suspicious_regions": [{"x": r["x"], "y": r["y"], "width": r["w"], "height": r["h"],
                                 "area": r["w"] * r["h"], "mean_anomaly": r["mean"], "max_anomaly": r["max"],
                                 "mean_reliability": r["rel"]} for r in regs],
-        "suspicious_timeline": [],
-        "processing": {"visual_time_ms": None, "audio_time_ms": None, "sync_time_ms": None, "total_time_ms": None},
+        "suspicious_timeline": [], "processing": _no_times(),
     }
 
 
-def build_audio():
-    score, dur = .78, 18.0
+def build_audio(variant="ai"):
+    dur = 18.0
+    if variant == "real":
+        score = .11
+        return {
+            "demo": True, "sample_data": True, "variant": "real",
+            "provenance": "Fully synthetic illustration of a result for a REAL voice recording. No audio was analysed.",
+            "media_type": "audio", "engine": "demo",
+            "verdict_label": verdict(score), "ai_probability_pct": round(score * 100), "certainty": certainty(score),
+            "reasons": [{"signal": "voice", "severity": "ok",
+                         "text": f"Voice: the synthetic-voice score for the whole clip is {score} (the voice looks natural). "
+                                 "The checker gives one score per clip, so it cannot say which seconds are fake."}],
+            "timeline": [], "frame_regions": [], "audio_segments": [], "all_detected_areas": [],
+            "frame_size": None, "audio_duration_sec": dur,
+            "manipulation_score": score, "decision": decision(score),
+            "modalities": {"visual_score": None, "audio_score": score, "sync_desync_score": None},
+            "sync_evidence": _no_sync(), "visual_evidence": _no_maps(),
+            "evidence": [f"Sample result. Audio forensic analysis produced a spoof score of {score:.2f}.",
+                         f"The final fusion result is {decision(score)}."],
+            "suspicious_regions": [], "suspicious_timeline": [], "processing": _no_times(),
+        }
+    score = .78
     segs = [{"start": 3.2, "end": 4.6, "score": .81, "reason": "flat, robotic pitch and no natural breathing"},
             {"start": 9.0, "end": 10.4, "score": .72,
              "reason": "over-smooth sound texture typical of voice-cloning models"},
@@ -145,9 +196,9 @@ def build_audio():
               "what": "voice", "percent_fake": round(s["score"] * 100), "label": label(s["score"])}
              for i, s in enumerate(segs)]
     return {
-        "demo": True, "sample_data": True,
-        "provenance": "Fully synthetic illustration. The segment times are made up: the real audio model "
-                      "(AASIST) returns one score per clip, not time segments.",
+        "demo": True, "sample_data": True, "variant": "ai",
+        "provenance": "Fully synthetic illustration of a result for a cloned voice. The segment times are made up: "
+                      "the real audio model (AASIST) returns one score per clip, not time segments.",
         "media_type": "audio", "engine": "demo",
         "verdict_label": verdict(score), "ai_probability_pct": round(score * 100), "certainty": certainty(score),
         "reasons": [{"signal": "voice", "severity": "bad",
@@ -157,16 +208,16 @@ def build_audio():
         "frame_size": None, "audio_duration_sec": dur,
         "manipulation_score": score, "decision": decision(score),
         "modalities": {"visual_score": None, "audio_score": score, "sync_desync_score": None},
-        "sync_evidence": {"offset_frames": None, "offset_ms": None, "confidence": None, "reliable": None},
-        "visual_evidence": {"anomaly_map_path": None, "reliability_map_path": None},
+        "sync_evidence": _no_sync(), "visual_evidence": _no_maps(),
         "evidence": [f"Sample result. Audio forensic analysis produced a spoof score of {score:.2f}.",
                      f"The final fusion result is {decision(score)}."],
-        "suspicious_regions": [], "suspicious_timeline": [],
-        "processing": {"visual_time_ms": None, "audio_time_ms": None, "sync_time_ms": None, "total_time_ms": None},
+        "suspicious_regions": [], "suspicious_timeline": [], "processing": _no_times(),
     }
 
 
 if __name__ == "__main__":
     write("video.json", build_video())
-    write("image.json", build_image())
-    write("audio.json", build_audio())
+    write("image.json", build_image("ai"))        # default variant for /demo/image
+    write("image_real.json", build_image("real"))
+    write("audio.json", build_audio("ai"))        # default variant for /demo/audio
+    write("audio_real.json", build_audio("real"))

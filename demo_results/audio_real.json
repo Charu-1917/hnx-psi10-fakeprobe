@@ -1,0 +1,53 @@
+{
+  "demo": true,
+  "sample_data": true,
+  "variant": "real",
+  "provenance": "Fully synthetic illustration of a result for a REAL voice recording. No audio was analysed.",
+  "media_type": "audio",
+  "engine": "demo",
+  "verdict_label": "LIKELY_REAL",
+  "ai_probability_pct": 11,
+  "certainty": "high",
+  "reasons": [
+    {
+      "signal": "voice",
+      "severity": "ok",
+      "text": "Voice: the synthetic-voice score for the whole clip is 0.11 (the voice looks natural). The checker gives one score per clip, so it cannot say which seconds are fake."
+    }
+  ],
+  "timeline": [],
+  "frame_regions": [],
+  "audio_segments": [],
+  "all_detected_areas": [],
+  "frame_size": null,
+  "audio_duration_sec": 18.0,
+  "manipulation_score": 0.11,
+  "decision": "LIKELY_AUTHENTIC",
+  "modalities": {
+    "visual_score": null,
+    "audio_score": 0.11,
+    "sync_desync_score": null
+  },
+  "sync_evidence": {
+    "offset_frames": null,
+    "offset_ms": null,
+    "confidence": null,
+    "reliable": null
+  },
+  "visual_evidence": {
+    "anomaly_map_path": null,
+    "reliability_map_path": null
+  },
+  "evidence": [
+    "Sample result. Audio forensic analysis produced a spoof score of 0.11.",
+    "The final fusion result is LIKELY_AUTHENTIC."
+  ],
+  "suspicious_regions": [],
+  "suspicious_timeline": [],
+  "processing": {
+    "visual_time_ms": null,
+    "audio_time_ms": null,
+    "sync_time_ms": null,
+    "total_time_ms": null
+  }
+}

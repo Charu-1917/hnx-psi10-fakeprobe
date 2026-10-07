@@ -1,7 +1,8 @@
 {
   "demo": true,
   "sample_data": true,
-  "provenance": "Fully synthetic illustration. No image was analysed.",
+  "variant": "ai",
+  "provenance": "Fully synthetic illustration of a result for an AI-made photo. No image was analysed.",
   "media_type": "image",
   "engine": "demo",
   "verdict_label": "AI_GENERATED",

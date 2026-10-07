@@ -1,0 +1,67 @@
+{
+  "demo": true,
+  "sample_data": true,
+  "variant": "real",
+  "provenance": "Fully synthetic illustration of a result for a REAL photo. No image was analysed.",
+  "media_type": "image",
+  "engine": "demo",
+  "verdict_label": "LIKELY_REAL",
+  "ai_probability_pct": 9,
+  "certainty": "high",
+  "reasons": [
+    {
+      "signal": "visual",
+      "severity": "ok",
+      "text": "Picture: no area of the image looks edited or generated."
+    },
+    {
+      "signal": "quality",
+      "severity": "ok",
+      "text": "The picture is sharp and well lit, so this result is reliable."
+    }
+  ],
+  "timeline": [],
+  "frame_regions": [
+    {
+      "timestamp_sec": null,
+      "frame_index": null,
+      "score": 0.09,
+      "regions": []
+    }
+  ],
+  "audio_segments": [],
+  "all_detected_areas": [],
+  "frame_size": {
+    "w": 800,
+    "h": 600
+  },
+  "manipulation_score": 0.09,
+  "decision": "LIKELY_AUTHENTIC",
+  "modalities": {
+    "visual_score": 0.09,
+    "audio_score": null,
+    "sync_desync_score": null
+  },
+  "sync_evidence": {
+    "offset_frames": null,
+    "offset_ms": null,
+    "confidence": null,
+    "reliable": null
+  },
+  "visual_evidence": {
+    "anomaly_map_path": null,
+    "reliability_map_path": null
+  },
+  "evidence": [
+    "Sample result. Visual analysis identified no significant anomalous regions.",
+    "The final fusion result is LIKELY_AUTHENTIC."
+  ],
+  "suspicious_regions": [],
+  "suspicious_timeline": [],
+  "processing": {
+    "visual_time_ms": null,
+    "audio_time_ms": null,
+    "sync_time_ms": null,
+    "total_time_ms": null
+  }
+}

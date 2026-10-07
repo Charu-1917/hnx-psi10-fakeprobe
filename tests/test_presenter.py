@@ -79,6 +79,13 @@ class PresenterTests(unittest.TestCase):
                "sync_evidence": {}, "evidence": [], "suspicious_regions": [], "suspicious_timeline": []}
         self.assertEqual(present(src, "video")["verdict_label"], "NOT_ENOUGH_INFO")
 
+    def test_stale_representative_frame_text_is_rewritten_for_multi_moment_video(self):
+        d = json.load(open(os.path.join(ROOT, "dump.json")))
+        self.assertTrue(any(e.startswith("Representative-frame") for e in d["evidence"]))
+        out = present(d, "video")
+        self.assertFalse(any("Representative-frame" in e for e in out["evidence"]))
+        self.assertTrue(any("checked 20 moments" in e for e in out["evidence"]))
+
     def test_real_dump_converts(self):
         d = json.load(open(os.path.join(ROOT, "dump.json")))
         out = present(d, "video")

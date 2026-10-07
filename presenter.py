@@ -250,6 +250,24 @@ def _present_fast(res, media_type, frame_size):
             "frame_size": fs}
 
 
+def _fix_evidence(evidence, media_type, ui):
+    """The orchestrator's reasoner always says "Representative-frame visual analysis ...", which is wrong
+    once a video is checked at many moments. Rewrite that one sentence for display (reasoner.py is untouched)."""
+    n = len(ui["frame_regions"])
+    peak = max(ui["frame_regions"], key=lambda f: f["score"], default=None)
+    out = []
+    for line in evidence or []:
+        if isinstance(line, str) and line.startswith("Representative-frame"):
+            if media_type == "video" and n > 1 and peak:
+                regs = len(peak["regions"])
+                line = (f"Visual analysis checked {n} moments of the video. The strongest was at "
+                        f"{_fmt_t(peak['timestamp_sec'])} with {regs} flagged area(s).")
+            elif media_type == "video":
+                line = line.replace("Representative-frame visual analysis", "Visual analysis of the single moment checked")
+        out.append(line)
+    return out
+
+
 # ------------------------------------------------------------------ public API
 def present(result: dict, media_type: str, engine: str | None = None, frame_size: dict | None = None) -> dict:
     """Return `result` plus the UI keys. Does not mutate the input."""
@@ -266,6 +284,8 @@ def present(result: dict, media_type: str, engine: str | None = None, frame_size
     ui["all_detected_areas"] = _areas_from_frames(ui["frame_regions"], ui["frame_size"], media_type)
     out = dict(result)
     out.update(ui)
+    if shape == "deep":
+        out["evidence"] = _fix_evidence(result.get("evidence"), media_type, ui)
     out["media_type"] = media_type
     out["engine"] = engine or shape
     return out

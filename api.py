@@ -4,6 +4,7 @@ import shutil
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from pydantic import BaseModel
 
@@ -55,11 +56,13 @@ def health():
 
 
 @app.get("/api/v1/demo/{media_type}")
-def demo(media_type: str):
+def demo(media_type: str, variant: str = Query("ai")):
     if media_type not in engines.MEDIA_TYPES:
         raise HTTPException(status_code=404, detail=f"media_type must be one of {list(engines.MEDIA_TYPES)}")
+    if variant not in ("ai", "real"):
+        raise HTTPException(status_code=400, detail="variant must be ai or real")
     try:
-        return JSONResponse(content=engines.load_demo(media_type))
+        return JSONResponse(content=engines.load_demo(media_type, variant))
     except EngineUnavailable as e:
         raise _unavailable(e)
 
@@ -160,3 +163,10 @@ async def get_artifact(uid: str, filename: str):
         raise HTTPException(status_code=404, detail="Artifact not found")
 
     return FileResponse(target_file)
+
+
+# One-command start: if the UI was built (cd frontend && npm run build), serve it from this server too.
+# Mounted last so every /api/v1 route above takes priority.
+_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "dist")
+if os.path.isfile(os.path.join(_DIST, "index.html")):
+    app.mount("/", StaticFiles(directory=_DIST, html=True), name="ui")

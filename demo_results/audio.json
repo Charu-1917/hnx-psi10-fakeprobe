@@ -1,7 +1,8 @@
 {
   "demo": true,
   "sample_data": true,
-  "provenance": "Fully synthetic illustration. The segment times are made up: the real audio model (AASIST) returns one score per clip, not time segments.",
+  "variant": "ai",
+  "provenance": "Fully synthetic illustration of a result for a cloned voice. The segment times are made up: the real audio model (AASIST) returns one score per clip, not time segments.",
   "media_type": "audio",
   "engine": "demo",
   "verdict_label": "AI_GENERATED",

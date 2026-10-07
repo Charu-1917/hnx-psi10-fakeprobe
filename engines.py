@@ -34,18 +34,23 @@ def media_type_from_name(filename: str) -> str:
 
 
 # ---------------------------------------------------------------- demo
-def load_demo(media_type: str) -> dict:
+def load_demo(media_type: str, variant: str = "ai") -> dict:
+    """variant: "ai" (default file) or "real" (image_real.json / audio_real.json). Video has one demo."""
     if media_type not in MEDIA_TYPES:
         raise ValueError(f"media_type must be one of {MEDIA_TYPES}")
-    path = os.path.join(DEMO_DIR, f"{media_type}.json")
+    if variant not in ("ai", "real"):
+        raise ValueError("variant must be ai or real")
+    name = f"{media_type}_real" if variant == "real" and media_type != "video" else media_type
+    path = os.path.join(DEMO_DIR, f"{name}.json")
     if not os.path.isfile(path):
-        raise EngineUnavailable(f"Demo file missing: demo_results/{media_type}.json")
+        raise EngineUnavailable(f"Demo file missing: demo_results/{name}.json")
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def demo_ready() -> bool:
-    return all(os.path.isfile(os.path.join(DEMO_DIR, f"{m}.json")) for m in MEDIA_TYPES)
+    names = [f"{m}.json" for m in MEDIA_TYPES] + ["image_real.json", "audio_real.json"]
+    return all(os.path.isfile(os.path.join(DEMO_DIR, n)) for n in names)
 
 
 # ---------------------------------------------------------------- deep (existing orchestrator)
