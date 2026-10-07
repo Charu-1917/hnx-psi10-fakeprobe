@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 import shutil
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
@@ -68,26 +69,29 @@ def demo(media_type: str, variant: str = Query("ai")):
 
 
 @app.post("/api/v1/analyze")
-def analyze_media(file: UploadFile = File(...), engine: str = Query("demo")):
+def analyze_media(file: UploadFile = File(...), engine: str = Query("auto")):
     """engine = demo (default, cached SAMPLE result) | fast (FakeProbe-X) | deep (TruFor/AASIST/SyncNet)."""
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="No file supplied")
-    if engine not in ("demo", "fast", "deep"):
-        raise HTTPException(status_code=400, detail="engine must be demo, fast or deep")
+    if engine not in ("auto", "demo", "fast", "deep"):
+        raise HTTPException(status_code=400, detail="engine must be auto, demo, fast or deep")
 
+    if engine == "auto":
+        engine = engines.pick_engine()
+        if engine is None:
+            raise _unavailable(EngineUnavailable("No live engine is ready on this machine."))
+    t0 = time.perf_counter()
     try:
         media_type = engines.media_type_from_name(file.filename)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     if engine == "demo":
-        # Replays the cached sample for this media type. The upload is NOT analysed.
-        try:
-            result = engines.load_demo(media_type)
-        except EngineUnavailable as e:
-            raise _unavailable(e)
-        result["uploaded_filename"] = file.filename
-        return JSONResponse(content=result)
+        # Never produce a result card for an uploaded file in demo mode: that would pass a cached
+        # example off as the verdict on the user's file.
+        raise HTTPException(status_code=400, detail={
+            "message": "Demo mode shows a cached example, not your file. Switch to Fast (live) to analyse your file.",
+            "run_demo_instead": False})
 
     ext = os.path.splitext(file.filename)[1].lower()
     temp_path = os.path.join(os.getcwd(), f"temp_upload_{uuid.uuid4().hex}{ext}")
@@ -99,7 +103,9 @@ def analyze_media(file: UploadFile = File(...), engine: str = Query("demo")):
 
         if engine == "fast":
             result = engines.run_fast(temp_path, media_type, sample_name=file.filename)
-            return JSONResponse(content=present(result, media_type, "fast"))
+            out = present(result, media_type, "fast")
+            out["live"] = {"engine": "fast", "seconds": round(time.perf_counter() - t0, 1), "filename": file.filename}
+            return JSONResponse(content=out)
 
         # engine == "deep": existing orchestrator, created lazily on first use
         result = engines.run_deep(temp_path)
@@ -119,7 +125,9 @@ def analyze_media(file: UploadFile = File(...), engine: str = Query("demo")):
                         filename = parts[1]
                         vis_ev[key] = f"/api/v1/artifacts/{uid}/{filename}"
 
-        return JSONResponse(content=present(result, media_type, "deep", frame_size=frame_size))
+        out = present(result, media_type, "deep", frame_size=frame_size)
+        out["live"] = {"engine": "deep", "seconds": round(time.perf_counter() - t0, 1), "filename": file.filename}
+        return JSONResponse(content=out)
 
     except EngineUnavailable as e:
         raise _unavailable(e)

@@ -70,7 +70,7 @@ function Badge({ r }) {
   if (!r) return null;
   if (r.sample_data) return <span className="badge sample">Sample result (cached demo)</span>;
   if (r.cached_real_run) return <span className="badge cached">Cached real run · not a live analysis</span>;
-  return <span className="badge live">Live analysis · {r.engine}</span>;
+  return <span className="badge live">Live analysis · {r.engine}{r.live?.seconds != null ? ` · ${r.live.seconds}s` : ''}{r.live?.filename ? ` · ${r.live.filename}` : ''}</span>;
 }
 
 export default function App() {
@@ -141,6 +141,7 @@ export default function App() {
     if (fileUrl) URL.revokeObjectURL(fileUrl);
     const url = URL.createObjectURL(f);
     setError(null);
+    if (health?.default_engine && health.default_engine !== 'demo') setEngine(health.default_engine);
     setFile(f); setKind(k); setFileUrl(url); setResult(null); setAudioBuf(null);
     imgRef.current = null;
     if (k === 'image') {
@@ -162,6 +163,10 @@ export default function App() {
 
   const run = async (eng = engine) => {
     if (!file) { loadDemo(kind === 'image' || kind === 'audio' ? kind : 'video', 'ai'); return; }
+    if (eng === 'demo') {
+      setError({ message: 'Demo mode shows a cached example, not your file. Switch to Fast (live) to analyse your file.', offerDemo: false });
+      return;
+    }
     setBusy(true); setError(null);
     try {
       const fd = new FormData(); fd.append('file', file);
@@ -344,7 +349,7 @@ export default function App() {
           <div className="row">
             <span className="mu">Engine:</span>
             {[['demo', 'Demo (cached)'], ['fast', 'Fast (live)'], ['deep', 'Deep (slow)']].map(([k, t]) => (
-              <button key={k} className={'g' + (engine === k ? ' on' : '')} onClick={() => setEngine(k)}>{t}</button>
+              <button key={k} className={'g' + (engine === k ? ' on' : '')} onClick={() => setEngine(k)}>{t}{k === 'demo' ? '' : health && !health.offline ? (ready[k] ? ' ✔' : ' ✖') : ''}</button>
             ))}
             <button className="run" disabled={busy} onClick={() => run()}>{busy ? 'Checking…' : '🔍 Check if it is AI'}</button>
           </div>
@@ -379,7 +384,7 @@ export default function App() {
           )}
           {error && (
             <div className="err" role="alert"><span>⚠ {error.message}</span>
-              {error.offerDemo && <button className="run" onClick={() => { setEngine('demo'); setError(null); if (file) run('demo'); else loadDemo(kind, 'ai'); }}>Run demo instead</button>}
+              {error.offerDemo && <button className="run" onClick={() => { setEngine('demo'); setError(null); loadDemo(kind, 'ai'); }}>Run demo instead</button>}
             </div>
           )}
         </section>

@@ -86,6 +86,30 @@ Every demo result carries `"demo": true`, and the UI badges it. **Never read a d
 The result keeps all original engine keys and adds `verdict_label`, `ai_probability_pct`, `certainty`, `reasons`,
 `timeline`, `frame_regions`, `audio_segments`, `all_detected_areas`, `frame_size` (see `presenter.py`).
 
+## Measured on real media (live `fast` engine, this machine, CPU)
+
+A first honest measurement with a handful of real and AI files. **It shows the `fast` engine does not separate real from AI:
+nearly everything scores about 60 %.** Treat its verdicts as unreliable until it is properly evaluated.
+
+| File | What it really is | Verdict | AI % | Seconds |
+|---|---|---|---|---|
+| obama.jpg | real photo | AI_GENERATED | 61 | 74.7 (first call loads the models) |
+| lena.jpg | real photo | AI_GENERATED | 60 | 1.8 |
+| real1.jpg | real portrait (128 px) | AI_GENERATED | 62 | 0.4 |
+| ai_1.png | StyleGAN face | POSSIBLY_AI | 56 | 0.6 |
+| ai_3.png | StyleGAN face | AI_GENERATED | 63 | 0.6 |
+| ai_4.png | StyleGAN face | AI_GENERATED | 61 | 0.6 |
+| real_libri1.wav | real speech | AI_GENERATED | 74 | 1.2 |
+| tts_sapi16.wav | Windows TTS voice | AI_GENERATED | 66 | 7.8 |
+| clip.mp4 | real video | AI_GENERATED | 59 (low certainty) | 14.2 |
+
+Two public Hugging Face image detectors were also tried offline on the same images: `prithivMLmods/Deep-Fake-Detector-v2-Model`
+called every real photo 64–92 % "Deepfake", and `dima806/deepfake_vs_real_image_detection` called every real photo real but
+missed 4 of 5 StyleGAN faces. A "lite" engine built on them is **not implemented**.
+
+**Uploads never get a demo result:** with `engine=demo` the API answers 400 ("Demo mode shows a cached example, not your file");
+`engine=auto` (the default) uses the first ready live engine (`fast`, then `deep`) and otherwise returns 503.
+
 ## Known limits
 
 * **FakeProbe-X accuracy on real media is unmeasured.** The only benchmark in the repo (`evaluation/benchmark_results.json`)

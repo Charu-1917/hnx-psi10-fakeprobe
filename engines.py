@@ -151,25 +151,30 @@ def fast_status():
     return True, "ok"
 
 
-_fast = {"d": None}
+_fast = {"cfg": False}
+_fast_models = {}
 
 
-def _fast_detectors():
-    if _fast["d"] is None:
+def _fast_get(name):
+    """Load one FakeProbe-X component on first use (the audio detector downloads Whisper, so an image
+    check must not wait for it)."""
+    if not _fast["cfg"]:
         from configs.forensic_config import DEFAULT_CONFIG
         mdir = _fast_models_dir()
         # PROJECT_ROOT / <absolute path> resolves to the absolute path, so this redirects the loaders
         DEFAULT_CONFIG.image_model_rel_path = os.path.join(mdir, FAST_WEIGHTS["image"])
         DEFAULT_CONFIG.audio_model_rel_path = os.path.join(mdir, FAST_WEIGHTS["audio"])
         DEFAULT_CONFIG.video_fusion_model_rel_path = os.path.join(mdir, FAST_WEIGHTS["video"])
+        _fast["cfg"] = True
+    if name not in _fast_models:
         try:
-            from deepfake_detector_core import (ImageDeepfakeDetector, AudioDeepfakeDetector,
-                                                VideoDeepfakeDetector, AdaptiveEvidenceFusionEngine)
-            _fast["d"] = {"image": ImageDeepfakeDetector(), "audio": AudioDeepfakeDetector(),
-                          "video": VideoDeepfakeDetector(), "fusion": AdaptiveEvidenceFusionEngine()}
+            import deepfake_detector_core as core
+            cls = {"image": core.ImageDeepfakeDetector, "audio": core.AudioDeepfakeDetector,
+                   "video": core.VideoDeepfakeDetector, "fusion": core.AdaptiveEvidenceFusionEngine}[name]
+            _fast_models[name] = cls()
         except Exception as e:  # noqa: BLE001
-            raise EngineUnavailable(f"Fast engine (FakeProbe-X) failed to load: {e}") from e
-    return _fast["d"]
+            raise EngineUnavailable(f"Fast engine (FakeProbe-X) failed to load its {name} model: {e}") from e
+    return _fast_models[name]
 
 
 def run_fast(path: str, media_type: str, sample_name: str) -> dict:
@@ -178,7 +183,13 @@ def run_fast(path: str, media_type: str, sample_name: str) -> dict:
     ok, why = fast_status()
     if not ok:
         raise EngineUnavailable(f"Fast engine unavailable: {why}")
-    d = _fast_detectors()
+    d = {"fusion": _fast_get("fusion")}
+    if media_type in ("image", "video"):
+        d["image"] = _fast_get("image")
+    if media_type in ("audio", "video"):
+        d["audio"] = _fast_get("audio")
+    if media_type == "video":
+        d["video"] = _fast_get("video")
     if media_type == "image":
         import cv2
         res = d["image"].predict_structured(path, apply_face_crop=True)
@@ -221,6 +232,15 @@ def _plain(o):
 def health() -> dict:
     f_ok, f_why = fast_status()
     d_ok, d_why = deep_status()
-    return {"default_engine": "demo", "demo_ready": demo_ready(),
+    return {"default_engine": pick_engine() or "demo", "demo_ready": demo_ready(),
             "fast_ready": f_ok, "fast_reason": None if f_ok else f_why,
             "deep_ready": d_ok, "deep_reason": None if d_ok else d_why}
+
+
+def pick_engine():
+    """First ready live engine (fast, then deep), or None."""
+    if fast_status()[0]:
+        return "fast"
+    if deep_status()[0]:
+        return "deep"
+    return None
