@@ -129,7 +129,7 @@ def compose(res, R):
         if g["audio_segments"]:
             parts.append("Voice segments: " + "; ".join(
                 f"{a['start']:g}-{a['end']:g}s ({a.get('reason', '')})" for a in g["audio_segments"]))
-        elif R.get("media_type") in ("audio", "video"):
+        elif any(r.get("signal") == "voice" for r in R.get("reasons") or []):
             parts.append("This engine gives one voice score for the whole clip, so it cannot name fake seconds.")
         o.append(" ".join(parts) or "This result has no time information.")
         areas = R.get("all_detected_areas") or []
