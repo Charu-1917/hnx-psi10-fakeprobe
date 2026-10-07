@@ -102,9 +102,22 @@ class TestOrchestrator(unittest.TestCase):
         self.assertIsNotNone(result["processing"]["audio_time_ms"])
         self.assertIsNone(result["processing"]["visual_time_ms"])
         
-    @patch('orchestrator.InferenceOrchestrator._extract_middle_frame')
-    def test_video_routing(self, mock_extract):
-        mock_extract.return_value = self.dummy_img
+    @patch('orchestrator.InferenceOrchestrator._analyze_video_temporal')
+    def test_video_routing(self, mock_analyze_video):
+        mock_analyze_video.return_value = {
+            "mean_score": 0.85,
+            "peak_score": 0.85,
+            "peak_timestamp_sec": 0.0,
+            "frames_analyzed": 1,
+            "evidence_frames": [],
+            "suspicious_timeline": [],
+            "global_peak_frame": {
+                "visual_score": 0.85,
+                "timestamp_sec": 0.0,
+                "suspicious_regions": [],
+                "artifact_paths": {"anomaly_map": "dummy_map.png", "reliability_map": "dummy_map.png"}
+            }
+        }
         
         dummy_vid = "dummy.mp4"
         with open(dummy_vid, "wb") as f:
@@ -112,7 +125,6 @@ class TestOrchestrator(unittest.TestCase):
             
         try:
             result = self.orchestrator.analyze(dummy_vid)
-            self.mock_trufor.predict.assert_called_once()
             self.mock_aasist.predict.assert_called_once()
             self.mock_syncnet.predict.assert_called_once()
             

@@ -12,13 +12,8 @@ class ForensicEvidenceReasoner:
         self.anomaly_threshold = anomaly_threshold
         self.min_area_pixels = min_area_pixels
 
-    def generate_evidence(self, payload: dict, media_type: str, anomaly_map=None, reliability_map=None) -> dict:
+    def extract_regions(self, anomaly_map, reliability_map=None) -> list:
         suspicious_regions = []
-        evidence = payload.get("evidence", [])
-        if evidence is None:
-            evidence = []
-
-        # 1. VISUAL EVIDENCE & REGION EXTRACTION
         if anomaly_map is not None and isinstance(anomaly_map, np.ndarray) and anomaly_map.ndim == 2:
             try:
                 # Thresholding mask
@@ -64,6 +59,15 @@ class ForensicEvidenceReasoner:
             except Exception:
                 # Silently fail region extraction without crashing
                 pass
+        return suspicious_regions
+
+    def generate_evidence(self, payload: dict, media_type: str, anomaly_map=None, reliability_map=None) -> dict:
+        suspicious_regions = payload.get("suspicious_regions", [])
+        if not suspicious_regions and anomaly_map is not None:
+            suspicious_regions = self.extract_regions(anomaly_map, reliability_map)
+        evidence = payload.get("evidence", [])
+        if evidence is None:
+            evidence = []
 
         # Textual Visual Evidence
         if payload.get("modalities", {}).get("visual_score") is not None:

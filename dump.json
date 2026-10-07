@@ -1,0 +1,697 @@
+{
+  "manipulation_score": 0.4222472476959229,
+  "decision": "UNCERTAIN",
+  "modalities": {
+    "visual_score": 0.6056181192398071,
+    "audio_score": 0.5,
+    "sync_desync_score": 0.1
+  },
+  "sync_evidence": {
+    "offset_frames": 1,
+    "offset_ms": 40.0,
+    "confidence": 3.5,
+    "reliable": true
+  },
+  "visual_evidence": {
+    "anomaly_map_path": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_0_00.png",
+    "reliability_map_path": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_0_00.png"
+  },
+  "evidence": [
+    "Representative-frame visual analysis identified 2 anomalous region(s).",
+    "Audio forensic analysis produced an AASIST spoof score of 0.50.",
+    "Audio-video synchronization analysis found an offset of 40.0 ms.",
+    "The final fusion result is UNCERTAIN."
+  ],
+  "suspicious_regions": [
+    {
+      "x": 204,
+      "y": 35,
+      "width": 862,
+      "height": 685,
+      "area": 307319,
+      "mean_anomaly": 0.8732,
+      "max_anomaly": 0.9886,
+      "mean_reliability": 0.4242
+    },
+    {
+      "x": 1137,
+      "y": 577,
+      "width": 47,
+      "height": 48,
+      "area": 966,
+      "mean_anomaly": 0.9078,
+      "max_anomaly": 0.9895,
+      "mean_reliability": 0.7958
+    }
+  ],
+  "suspicious_timeline": [
+    {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "peak_time": 0.0,
+      "peak_score": 0.6056181192398071,
+      "evidence_frames": [
+        {
+          "timestamp_sec": 0.0,
+          "frame_index": 0,
+          "visual_score": 0.6056181192398071,
+          "suspicious_regions": [
+            {
+              "x": 204,
+              "y": 35,
+              "width": 862,
+              "height": 685,
+              "area": 307319,
+              "mean_anomaly": 0.8732,
+              "max_anomaly": 0.9886,
+              "mean_reliability": 0.4242
+            },
+            {
+              "x": 1137,
+              "y": 577,
+              "width": 47,
+              "height": 48,
+              "area": 966,
+              "mean_anomaly": 0.9078,
+              "max_anomaly": 0.9895,
+              "mean_reliability": 0.7958
+            }
+          ],
+          "artifact_paths": {
+            "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_0_00.png",
+            "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_0_00.png",
+            "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_0_00.png"
+          }
+        }
+      ]
+    },
+    {
+      "start_time": 5.0,
+      "end_time": 5.0,
+      "peak_time": 5.0,
+      "peak_score": 0.5621711015701294,
+      "evidence_frames": [
+        {
+          "timestamp_sec": 5.0,
+          "frame_index": 120,
+          "visual_score": 0.5621711015701294,
+          "suspicious_regions": [
+            {
+              "x": 1137,
+              "y": 577,
+              "width": 47,
+              "height": 47,
+              "area": 924,
+              "mean_anomaly": 0.9387,
+              "max_anomaly": 0.9984,
+              "mean_reliability": 0.9302
+            }
+          ],
+          "artifact_paths": {
+            "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_5_00.png",
+            "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_5_00.png",
+            "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_5_00.png"
+          }
+        }
+      ]
+    },
+    {
+      "start_time": 8.0,
+      "end_time": 8.0,
+      "peak_time": 8.0,
+      "peak_score": 0.5234320163726807,
+      "evidence_frames": [
+        {
+          "timestamp_sec": 8.0,
+          "frame_index": 192,
+          "visual_score": 0.5234320163726807,
+          "suspicious_regions": [
+            {
+              "x": 1137,
+              "y": 577,
+              "width": 47,
+              "height": 47,
+              "area": 918,
+              "mean_anomaly": 0.939,
+              "max_anomaly": 0.998,
+              "mean_reliability": 0.9249
+            }
+          ],
+          "artifact_paths": {
+            "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_8_00.png",
+            "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_8_00.png",
+            "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_8_00.png"
+          }
+        }
+      ]
+    }
+  ],
+  "processing": {
+    "visual_time_ms": 420157,
+    "audio_time_ms": 0,
+    "sync_time_ms": 0,
+    "total_time_ms": 420158
+  },
+  "video_visual": {
+    "mean_score": 0.43810531944036485,
+    "peak_score": 0.6056181192398071,
+    "peak_timestamp_sec": 0.0,
+    "frames_analyzed": 20,
+    "evidence_frames": [
+      {
+        "timestamp_sec": 0.0,
+        "frame_index": 0,
+        "visual_score": 0.6056181192398071,
+        "suspicious_regions": [
+          {
+            "x": 204,
+            "y": 35,
+            "width": 862,
+            "height": 685,
+            "area": 307319,
+            "mean_anomaly": 0.8732,
+            "max_anomaly": 0.9886,
+            "mean_reliability": 0.4242
+          },
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 48,
+            "area": 966,
+            "mean_anomaly": 0.9078,
+            "max_anomaly": 0.9895,
+            "mean_reliability": 0.7958
+          }
+        ],
+        "artifact_paths": {
+          "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_0_00.png",
+          "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_0_00.png",
+          "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_0_00.png"
+        }
+      },
+      {
+        "timestamp_sec": 1.0,
+        "frame_index": 24,
+        "visual_score": 0.3424539864063263,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 958,
+            "mean_anomaly": 0.9328,
+            "max_anomaly": 0.998,
+            "mean_reliability": 0.8237
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 2.0,
+        "frame_index": 48,
+        "visual_score": 0.4406196177005768,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 938,
+            "mean_anomaly": 0.9373,
+            "max_anomaly": 0.9982,
+            "mean_reliability": 0.8966
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 3.0,
+        "frame_index": 72,
+        "visual_score": 0.3767990469932556,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 946,
+            "mean_anomaly": 0.9349,
+            "max_anomaly": 0.9979,
+            "mean_reliability": 0.8783
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 4.0,
+        "frame_index": 96,
+        "visual_score": 0.3999609351158142,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 578,
+            "width": 47,
+            "height": 46,
+            "area": 936,
+            "mean_anomaly": 0.9369,
+            "max_anomaly": 0.9976,
+            "mean_reliability": 0.9105
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 5.0,
+        "frame_index": 120,
+        "visual_score": 0.5621711015701294,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 924,
+            "mean_anomaly": 0.9387,
+            "max_anomaly": 0.9984,
+            "mean_reliability": 0.9302
+          }
+        ],
+        "artifact_paths": {
+          "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_5_00.png",
+          "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_5_00.png",
+          "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_5_00.png"
+        }
+      },
+      {
+        "timestamp_sec": 6.0,
+        "frame_index": 144,
+        "visual_score": 0.37408947944641113,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 949,
+            "mean_anomaly": 0.9341,
+            "max_anomaly": 0.9977,
+            "mean_reliability": 0.8775
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 7.0,
+        "frame_index": 168,
+        "visual_score": 0.4583190381526947,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 932,
+            "mean_anomaly": 0.9374,
+            "max_anomaly": 0.998,
+            "mean_reliability": 0.9122
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 8.0,
+        "frame_index": 192,
+        "visual_score": 0.5234320163726807,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 918,
+            "mean_anomaly": 0.939,
+            "max_anomaly": 0.998,
+            "mean_reliability": 0.9249
+          }
+        ],
+        "artifact_paths": {
+          "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_8_00.png",
+          "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_8_00.png",
+          "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_8_00.png"
+        }
+      },
+      {
+        "timestamp_sec": 9.0,
+        "frame_index": 216,
+        "visual_score": 0.4291077256202698,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 940,
+            "mean_anomaly": 0.9349,
+            "max_anomaly": 0.998,
+            "mean_reliability": 0.8993
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 0.25,
+        "frame_index": 6,
+        "visual_score": 0.4624660015106201,
+        "suspicious_regions": [
+          {
+            "x": 485,
+            "y": 38,
+            "width": 486,
+            "height": 571,
+            "area": 135867,
+            "mean_anomaly": 0.7481,
+            "max_anomaly": 0.9784,
+            "mean_reliability": 0.3961
+          },
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 954,
+            "mean_anomaly": 0.9218,
+            "max_anomaly": 0.9944,
+            "mean_reliability": 0.815
+          },
+          {
+            "x": 288,
+            "y": 622,
+            "width": 27,
+            "height": 42,
+            "area": 715,
+            "mean_anomaly": 0.5199,
+            "max_anomaly": 0.5541,
+            "mean_reliability": 0.6353
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 0.5,
+        "frame_index": 12,
+        "visual_score": 0.3259851932525635,
+        "suspicious_regions": [
+          {
+            "x": 647,
+            "y": 210,
+            "width": 62,
+            "height": 47,
+            "area": 2080,
+            "mean_anomaly": 0.6067,
+            "max_anomaly": 0.7188,
+            "mean_reliability": 0.5303
+          },
+          {
+            "x": 563,
+            "y": 214,
+            "width": 42,
+            "height": 38,
+            "area": 1049,
+            "mean_anomaly": 0.5582,
+            "max_anomaly": 0.6418,
+            "mean_reliability": 0.4623
+          },
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 958,
+            "mean_anomaly": 0.93,
+            "max_anomaly": 0.9971,
+            "mean_reliability": 0.8174
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 4.5,
+        "frame_index": 108,
+        "visual_score": 0.3732612729072571,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 945,
+            "mean_anomaly": 0.9342,
+            "max_anomaly": 0.9973,
+            "mean_reliability": 0.8875
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 4.75,
+        "frame_index": 114,
+        "visual_score": 0.38206946849823,
+        "suspicious_regions": [
+          {
+            "x": 521,
+            "y": 224,
+            "width": 67,
+            "height": 53,
+            "area": 2236,
+            "mean_anomaly": 0.5612,
+            "max_anomaly": 0.6819,
+            "mean_reliability": 0.503
+          },
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 941,
+            "mean_anomaly": 0.9333,
+            "max_anomaly": 0.9972,
+            "mean_reliability": 0.8945
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 5.25,
+        "frame_index": 126,
+        "visual_score": 0.49898603558540344,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 919,
+            "mean_anomaly": 0.9378,
+            "max_anomaly": 0.9979,
+            "mean_reliability": 0.9299
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 5.5,
+        "frame_index": 132,
+        "visual_score": 0.42123058438301086,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 932,
+            "mean_anomaly": 0.9383,
+            "max_anomaly": 0.9977,
+            "mean_reliability": 0.9056
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 7.5,
+        "frame_index": 180,
+        "visual_score": 0.42823657393455505,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 925,
+            "mean_anomaly": 0.9361,
+            "max_anomaly": 0.9975,
+            "mean_reliability": 0.9058
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 7.75,
+        "frame_index": 186,
+        "visual_score": 0.4942352771759033,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 917,
+            "mean_anomaly": 0.9378,
+            "max_anomaly": 0.9979,
+            "mean_reliability": 0.9232
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 8.25,
+        "frame_index": 198,
+        "visual_score": 0.44723010063171387,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 916,
+            "mean_anomaly": 0.9373,
+            "max_anomaly": 0.9979,
+            "mean_reliability": 0.9189
+          }
+        ],
+        "artifact_paths": {}
+      },
+      {
+        "timestamp_sec": 8.5,
+        "frame_index": 204,
+        "visual_score": 0.41583481431007385,
+        "suspicious_regions": [
+          {
+            "x": 1137,
+            "y": 577,
+            "width": 47,
+            "height": 47,
+            "area": 928,
+            "mean_anomaly": 0.9362,
+            "max_anomaly": 0.9978,
+            "mean_reliability": 0.887
+          }
+        ],
+        "artifact_paths": {}
+      }
+    ],
+    "suspicious_timeline": [
+      {
+        "start_time": 0.0,
+        "end_time": 0.0,
+        "peak_time": 0.0,
+        "peak_score": 0.6056181192398071,
+        "evidence_frames": [
+          {
+            "timestamp_sec": 0.0,
+            "frame_index": 0,
+            "visual_score": 0.6056181192398071,
+            "suspicious_regions": [
+              {
+                "x": 204,
+                "y": 35,
+                "width": 862,
+                "height": 685,
+                "area": 307319,
+                "mean_anomaly": 0.8732,
+                "max_anomaly": 0.9886,
+                "mean_reliability": 0.4242
+              },
+              {
+                "x": 1137,
+                "y": 577,
+                "width": 47,
+                "height": 48,
+                "area": 966,
+                "mean_anomaly": 0.9078,
+                "max_anomaly": 0.9895,
+                "mean_reliability": 0.7958
+              }
+            ],
+            "artifact_paths": {
+              "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_0_00.png",
+              "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_0_00.png",
+              "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_0_00.png"
+            }
+          }
+        ]
+      },
+      {
+        "start_time": 5.0,
+        "end_time": 5.0,
+        "peak_time": 5.0,
+        "peak_score": 0.5621711015701294,
+        "evidence_frames": [
+          {
+            "timestamp_sec": 5.0,
+            "frame_index": 120,
+            "visual_score": 0.5621711015701294,
+            "suspicious_regions": [
+              {
+                "x": 1137,
+                "y": 577,
+                "width": 47,
+                "height": 47,
+                "area": 924,
+                "mean_anomaly": 0.9387,
+                "max_anomaly": 0.9984,
+                "mean_reliability": 0.9302
+              }
+            ],
+            "artifact_paths": {
+              "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_5_00.png",
+              "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_5_00.png",
+              "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_5_00.png"
+            }
+          }
+        ]
+      },
+      {
+        "start_time": 8.0,
+        "end_time": 8.0,
+        "peak_time": 8.0,
+        "peak_score": 0.5234320163726807,
+        "evidence_frames": [
+          {
+            "timestamp_sec": 8.0,
+            "frame_index": 192,
+            "visual_score": 0.5234320163726807,
+            "suspicious_regions": [
+              {
+                "x": 1137,
+                "y": 577,
+                "width": 47,
+                "height": 47,
+                "area": 918,
+                "mean_anomaly": 0.939,
+                "max_anomaly": 0.998,
+                "mean_reliability": 0.9249
+              }
+            ],
+            "artifact_paths": {
+              "evidence_frame": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\evidence_frame_8_00.png",
+              "anomaly_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\anomaly_map_8_00.png",
+              "reliability_map": "C:\\charu hack\\artifacts_11d600ec86df47daae8244a04888ce79\\reliability_map_8_00.png"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
