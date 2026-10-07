@@ -1,0 +1,99 @@
+{
+  "demo": true,
+  "sample_data": true,
+  "provenance": "Fully synthetic illustration. The segment times are made up: the real audio model (AASIST) returns one score per clip, not time segments.",
+  "media_type": "audio",
+  "engine": "demo",
+  "verdict_label": "AI_GENERATED",
+  "ai_probability_pct": 78,
+  "certainty": "high",
+  "reasons": [
+    {
+      "signal": "voice",
+      "severity": "bad",
+      "text": "Voice: synthetic-voice score 0.78. Parts that sound fake (sample): 3.2s\u20134.6s: flat, robotic pitch and no natural breathing; 9.0s\u201310.4s: over-smooth sound texture typical of voice-cloning models; 14.0s\u201315.2s: the voice sounds unnaturally steady here."
+    }
+  ],
+  "timeline": [],
+  "frame_regions": [],
+  "audio_segments": [
+    {
+      "start": 3.2,
+      "end": 4.6,
+      "score": 0.81,
+      "reason": "flat, robotic pitch and no natural breathing"
+    },
+    {
+      "start": 9.0,
+      "end": 10.4,
+      "score": 0.72,
+      "reason": "over-smooth sound texture typical of voice-cloning models"
+    },
+    {
+      "start": 14.0,
+      "end": 15.2,
+      "score": 0.66,
+      "reason": "the voice sounds unnaturally steady here"
+    }
+  ],
+  "all_detected_areas": [
+    {
+      "n": 1,
+      "kind": "audio",
+      "time": "3.2s \u2013 4.6s",
+      "where": "in the voice",
+      "what": "voice",
+      "percent_fake": 81,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 2,
+      "kind": "audio",
+      "time": "9.0s \u2013 10.4s",
+      "where": "in the voice",
+      "what": "voice",
+      "percent_fake": 72,
+      "label": "Very likely fake"
+    },
+    {
+      "n": 3,
+      "kind": "audio",
+      "time": "14.0s \u2013 15.2s",
+      "where": "in the voice",
+      "what": "voice",
+      "percent_fake": 66,
+      "label": "Very likely fake"
+    }
+  ],
+  "frame_size": null,
+  "audio_duration_sec": 18.0,
+  "manipulation_score": 0.78,
+  "decision": "LIKELY_MANIPULATED",
+  "modalities": {
+    "visual_score": null,
+    "audio_score": 0.78,
+    "sync_desync_score": null
+  },
+  "sync_evidence": {
+    "offset_frames": null,
+    "offset_ms": null,
+    "confidence": null,
+    "reliable": null
+  },
+  "visual_evidence": {
+    "anomaly_map_path": null,
+    "reliability_map_path": null
+  },
+  "evidence": [
+    "Sample result. Audio forensic analysis produced a spoof score of 0.78.",
+    "The final fusion result is LIKELY_MANIPULATED."
+  ],
+  "suspicious_regions": [],
+  "suspicious_timeline": [],
+  "processing": {
+    "visual_time_ms": null,
+    "audio_time_ms": null,
+    "sync_time_ms": null,
+    "total_time_ms": null
+  }
+}
